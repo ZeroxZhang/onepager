@@ -3,7 +3,7 @@ name: onepager
 description: >-
   Generate beautiful OnePage infographic posters and visual summary images from
   user-provided content (text, Markdown, PDF). Supports multiple sizes (portrait,
-  landscape, square, 3:4 poster), eight design styles, three information density
+  landscape, square, 3:4 poster), nine design styles, three information density
   levels, optional BigNumber data displays, auto-matched visual diagrams
   (flowcharts, tree diagrams, architecture diagrams, matrices, radar/pie charts),
   signature/署名, content-based file naming, and automated quality checks.
@@ -93,6 +93,7 @@ description: >-
 - `B6` 极简东方 — 极浅灰+墨黑，东方极简主义留白
 - `B7` 数据新闻 — 报纸白+海军蓝，经济学人数据可视化风格
 - `B8` 赛博街道 — 深黑+霓虹粉/电青， gritty 赛博朋克
+- `B9` 谷歌原生 — 白底+Google蓝+品牌四色大色块，复刻 Google 官方网站设计语言（系统化克制+局部胆大）。支持 Light 经典四色 / Dark I/O 深色两套配色
 
 **C. 信息密度**
 - `C1` 低密度 — 大留白，金句提炼，视觉优先
@@ -213,7 +214,7 @@ description: >-
 - 采用 12 栅格或 8pt Grid 对齐系统，模块间距遵循 8/16/24/32/48/64 的倍数节奏
 - 留白占比 ≥ 30%（模块间留白 > 模块内留白，接近性原则）
 - 色彩遵循 60-30-10 法则：主色 60%（中性背景）、辅助色 30%、强调色 10%
-- 全页色彩不超过 3 个主色 + 2 个中性色（B5 新波普编辑和 B8 赛博街道例外但需保持比例）
+- 全页色彩不超过 3 个主色 + 2 个中性色（B5 新波普编辑、B8 赛博街道、B9 谷歌原生例外但需保持比例；B9 经典四色满铺色块不计入主色限制）
 - 字体家族不超过 2 种（一种标题，一种正文）
 - 图标风格全页统一：线性/面性/粗边框三选一
 - 正文与背景对比度 ≥ 4.5:1（WCAG AA）
@@ -310,6 +311,7 @@ HTML 生成后、截图前，必须执行独立的质量检查：
    - 尽可能修复（特别是阴影滥用、颜色过多、圆角不一致等问题）
 
 4. 将质检报告摘要附加在交付信息中
+   - **B9 谷歌原生**：务必传入 `--style B9`。该风格使用 Google 蓝（`#4285f4`/`#1a73e8`）和品牌四色，质检脚本会因 `--style B9` 自动放宽蓝色与色彩数量检查；不传则会误报蓝色/颜色超限
 
 ### Phase 5: 截图转换与交付
 

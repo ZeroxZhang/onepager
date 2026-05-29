@@ -324,6 +324,33 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
     else:
         errors.append("[BIGNUMBER] Missing BigNumber module (.bignum-* class not found). Every OnePage MUST include at least one BigNumber data display.")
 
+    # ===== STYLE NORMALIZATION =====
+    # B9 (Google Native) intentionally uses Google blue (#4285f4 / #1a73e8)
+    # and the brand four-color palette, so the blue-purple detector and the
+    # color-count budget are relaxed for this style.
+    style_norm = (style or "").strip().upper()
+    is_b9 = style_norm == "B9"
+
+    # Google brand colors that must NOT be flagged as the "AI blue-purple look"
+    # when running in B9 mode.
+    B9_ALLOWED = {
+        (66, 133, 244),   # #4285f4 brand blue
+        (26, 115, 232),   # #1a73e8 primary blue
+        (25, 103, 210),   # #1967d2 blue hover
+        (234, 67, 53),    # #ea4335 brand red
+        (251, 188, 4),    # #fbbc04 brand yellow
+        (52, 168, 83),    # #34a853 brand green
+        (138, 180, 248),  # #8ab4f8 I/O light blue
+        (197, 138, 249),  # #c58af9 I/O purple accent
+        (129, 201, 149),  # #81c995 I/O light green
+    }
+
+    def _is_b9_allowed(rgb):
+        for ar, ag, ab in B9_ALLOWED:
+            if abs(rgb[0] - ar) + abs(rgb[1] - ag) + abs(rgb[2] - ab) <= 12:
+                return True
+        return False
+
     # ===== EMOJI CHECK =====
     full_text = ''.join(checker.text_content)
     emojis_found = []
@@ -356,10 +383,16 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
         if rgb and is_blue_purple(*rgb):
             if style and style.upper() == "B7" and rgb in b7_allowed_colors:
                 continue
+            # In B9 mode, Google brand colors are expected, not "AI look".
+            if is_b9 and _is_b9_allowed(rgb):
+                continue
             bp_colors.append(color)
 
     if not bp_colors:
-        passed.append("[COLOR] No blue-purple tones detected")
+        if is_b9:
+            passed.append("[COLOR] No blue-purple tones detected (Google brand colors allowed in B9)")
+        else:
+            passed.append("[COLOR] No blue-purple tones detected")
     else:
         warnings.append(f"[COLOR] Found {len(bp_colors)} blue-purple color value(s). Review to ensure they fit the design philosophy:")
         for c in bp_colors[:8]:
@@ -367,11 +400,18 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
         if len(bp_colors) > 8:
             warnings.append(f"  ... and {len(bp_colors) - 8} more")
 
-    # Color count
+    # Color count. B9 (Google Native classic four-color) legitimately uses the
+    # brand four-color palette plus neutrals as full-bleed blocks, so it gets a
+    # higher budget.
     unique_colors = len(checker.color_values)
-    if unique_colors <= 7:
-        passed.append(f"[COLOR] Color palette is restrained ({unique_colors} unique colors)")
-    elif unique_colors <= 12:
+    if is_b9:
+        if unique_colors <= 12:
+            passed.append(f"[COLOR] Color palette is restrained for B9 Google Native ({unique_colors} unique colors)")
+        elif unique_colors <= 16:
+            warnings.append(f"[COLOR] B9 palette has {unique_colors} unique colors. Brand four-color + neutrals is expected, but consider keeping ≤12.")
+        else:
+            errors.append(f"[COLOR] Too many colors ({unique_colors} unique) even for B9. Keep to Google brand four-color + neutrals + single blue CTA.")
+    elif unique_colors <= 7:
         warnings.append(f"[COLOR] Color palette has {unique_colors} unique colors. Consider reducing to ≤7 for visual consistency.")
     else:
         errors.append(f"[COLOR] Too many colors ({unique_colors} unique). Limit to 3 main + 2 neutral colors maximum.")
@@ -482,7 +522,7 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
 def main():
     parser = argparse.ArgumentParser(description="Quality check for OnePage HTML files")
     parser.add_argument("input", help="Path to HTML file")
-    parser.add_argument("--style", help="Design style (B1-B8)", default=None)
+    parser.add_argument("--style", help="Design style (B1-B9; B9 relaxes Google blue & color-count checks)", default=None)
     parser.add_argument("--size", help="Canvas size (A1/A2/A3/A4)", default=None)
     parser.add_argument("--no-bignum", action="store_true", help="Skip BigNumber check (user chose E2 — no BigNumber)")
     args = parser.parse_args()

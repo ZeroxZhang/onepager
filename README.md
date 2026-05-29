@@ -25,13 +25,13 @@ Onepager is a Claude Agent Skill that transforms your provided text, Markdown, o
 ### Core Features
 
 - **Multiple Sizes**: Vertical scroll (Mobile), Horizontal widescreen (16:9), Square (1:1), Portrait poster (3:4 for Xiaohongshu/WeChat)
-- **Eight Design Styles**: Dark Editorial, Swiss Precision, Organic Nature, Constructivist Brutalism, Neo-Pop Editorial, Minimalist East, Data Journalism, Cyber Street
+- **Nine Design Styles**: Dark Editorial, Swiss Precision, Organic Nature, Constructivist Brutalism, Neo-Pop Editorial, Minimalist East, Data Journalism, Cyber Street, Google Native
 - **Three Information Densities**: Low/Medium/High density, automatically rewriting content to match the layout
 - **Content Intelligence**: Applies consulting-grade content principles (MECE, Pyramid, SCQA, So What, Quantification) to restructure content for maximum impact
 - **Type Differentiation**: Automatically detects and adapts to 5 content types (Product Intro, Product Manual, Solution Pitch, Operation Guide, Infographic) with type-specific restructuring
 - **Smart Diagram Matching**: Automatically selects flowcharts, structure diagrams, architecture diagrams, etc., based on content logic
 - **Optional BigNumber**: Toggle data highlight modules on/off (E1/E2), replace with quotes, diagrams, or whitespace when disabled
-- **Signature/署名**: Auto-detect from git user name or customize with brand name; per-style CSS styling for 8 design styles
+- **Signature/署名**: Auto-detect from git user name or customize with brand name; per-style CSS styling for 9 design styles
 - **Content-Based Naming**: Output files named as `{topic}-{size}-{style}-{date}` instead of generic names, avoiding overwrites
 - **One-Click Config**: Accept recommended settings in one step during the interactive configuration phase
 - **Visual Standards**: 8pt Grid system, 60-30-10 color rule, WCAG AA contrast, consistent icon styles
@@ -83,7 +83,7 @@ onepager/
 │   ├── install_deps.sh       # Dependency installation helper script
 │   └── quality_check.py      # Automated design quality validation script
 ├── references/
-│   ├── design-styles.md      # Full visual specifications for the 8 design styles
+│   ├── design-styles.md      # Full visual specifications for the 9 design styles
 │   ├── typography.md         # Chinese font schemes and typography parameters
 │   ├── layout-specs.md       # Layout specifications for the 3 sizes
 │   ├── diagram-guide.md      # Diagram type matching and drawing guide
@@ -134,13 +134,13 @@ Onepager 是一个 Agent Skill，能够将用户提供的文字、Markdown 或 P
 ### 核心特性
 
 - **多尺寸支持**：纵向长图、横向宽图 (16:9)、正方形 (1:1)、竖版海报 (3:4，适合小红书/公众号封面)
-- **八种设计风格**：暗夜编辑、瑞士精密、有机自然、建筑粗野、新波普编辑、极简东方、数据新闻、赛博街道
+- **九种设计风格**：暗夜编辑、瑞士精密、有机自然、建筑粗野、新波普编辑、极简东方、数据新闻、赛博街道、谷歌原生
 - **三级信息密度**：低/中/高密度，自动改写内容匹配版式
 - **内容智能**：运用咨询级内容原则（MECE、金字塔原理、SCQA、So What、量化优先）重构内容，最大化传达效果
 - **类型差异化**：自动识别并适配 5 种内容类型（产品介绍、产品说明、方案介绍、操作指南、信息图），按类型定制重构策略
 - **智能图表匹配**：根据内容逻辑自动选择流程图、结构图、架构图等
 - **BigNumber 可选**：数据展示模块可开关（E1/E2），关闭时可用引言块、图表或留白替代
-- **署名支持**：自动从 git 用户名读取，或自定义品牌名/公众号名；8 种风格各有专属署名样式
+- **署名支持**：自动从 git 用户名读取，或自定义品牌名/公众号名；9 种风格各有专属署名样式
 - **内容命名**：输出文件按 `{主题}-{尺寸}-{风格}-{日期}` 命名，避免覆盖已有文件
 - **一键采纳推荐**：配置阶段可直接回车采纳推荐配置，快速开始
 - **视觉规范**：8pt Grid 对齐系统、60-30-10 色彩法则、WCAG AA 对比度、统一图标风格
@@ -192,7 +192,7 @@ onepager/
 │   ├── install_deps.sh       # 依赖安装辅助脚本
 │   └── quality_check.py      # 自动化设计质量校验脚本
 ├── references/
-│   ├── design-styles.md      # 八种设计风格的完整视觉规范
+│   ├── design-styles.md      # 九种设计风格的完整视觉规范
 │   ├── typography.md         # 中文字体方案与排版参数
 │   ├── layout-specs.md       # 三种尺寸的版式规范
 │   ├── diagram-guide.md      # 图表类型匹配与绘制指南
