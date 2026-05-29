@@ -1,6 +1,6 @@
 # 设计风格详细规范
 
-本文件定义了 Onepager 支持的八种设计风格的完整视觉规范。
+本文件定义了 Onepager 支持的九种设计风格的完整视觉规范。
 生成 HTML 时必须严格遵循所选风格的全部参数。
 
 ---
@@ -40,7 +40,7 @@
 - **30% 辅助色**：品牌/主题色，用于标题、卡片、区块
 - **10% 强调色**：高饱和度色，仅用于 CTA、关键数据、重点标注
 
-全页色彩不超过 **3 个主色 + 2 个中性色**。B5 新波普编辑可适当放宽色彩数量，但需保持大致的 60-30-10 比例原则。
+全页色彩不超过 **3 个主色 + 2 个中性色**。B5 新波普编辑、B8 赛博街道、B9 谷歌原生可适当放宽色彩数量，但需保持大致的 60-30-10 比例原则；B9 品牌四色满铺色块不计入主色限制。
 
 ---
 
@@ -636,6 +636,183 @@
 
 ---
 
+## B9: 谷歌原生 (Google Native)
+
+> 设计哲学：复刻 Google 官方网站设计语言——"系统化克制 + 局部胆大"。底盘永远是白底、深灰字、单一蓝色 CTA、宽留白。个性通过品牌四色大色块释放。绝不靠阴影、渐变、纹理制造"视觉冲击"——冲击来自内容本身。参考 cloud.google.com、io.google、workspace.google.com。
+
+### 双配色方案
+
+B9 支持两套配色：**Light 经典四色**（默认）与 **Dark I/O 深色**。在 Phase 2 交互配置时，若用户选择 B9，追问选择 Light 或 Dark。
+
+#### Light 经典四色（默认）
+
+- 主背景：`#ffffff` 纯白
+- 辅助背景：`#f8f9fa` 极浅灰（区块交替背景，几乎所有 Google 长页面都靠它做节奏）
+- 深色背景：`#202124` 深炭（用于 Footer、深色 CTA banner）
+- 主强调色：`#1a73e8` Google 蓝（唯一 CTA 色、链接色）
+- 主强调色 Hover：`#1967d2`
+- 正文色：`#202124` 深炭灰（不要纯黑 #000）
+- 次要文字：`#5f6368` 中灰
+- 辅助文字：`#80868b` 浅灰
+- 边框色：`#dadce0` 极浅灰
+- 品牌四色（仅用于区块满铺色块、装饰性元素，**绝不用于按钮/正文/图标**）：
+  - 品牌蓝：`#4285f4`
+  - 品牌红：`#ea4335`
+  - 品牌黄：`#fbbc04`
+  - 品牌绿：`#34a853`
+
+#### Dark I/O 深色
+
+- 主背景：`#0a0e1a` 深墨蓝
+- 辅助背景：`#111827` 深灰蓝（卡片/区块）
+- 深色背景：`#0d1117` 深黑（Hero 渐变底）
+- 主强调色 1：`#8ab4f8` 浅蓝
+- 主强调色 2：`#c58af9` 淡紫（仅此风格允许紫色，因为是 Google I/O 官方配色）
+- 主强调色 3：`#81c995` 浅绿
+- 正文色：`#f1f3f4` 冷白
+- 次要文字：`#9aa0a6` 冷灰
+- 边框色：`#3c4043` 深灰
+
+### 点缀元素
+
+- **品牌四色满铺色块**：整个区块使用四色之一作为背景（`background: #4285f4` 等），文字翻白。区块按红→黄→绿→蓝循环。**这是 B9 最核心的视觉手段**
+- **粗分隔线**：4-8px 纯色水平线，颜色取自品牌四色
+- **区块交替节奏**：白底 → 品牌色块 → 灰底 `#f8f9fa` → 品牌色块 → 深炭底。**绝不**所有区块同色
+- **无渐变、无发光、无毛玻璃**
+
+### 卡片样式
+
+**Light 模式边框卡**（ToB 默认）：
+```css
+.card {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 24px 24px 32px;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover {
+  box-shadow: 0 4px 8px rgba(60,64,67,.1), 0 8px 16px 4px rgba(60,64,67,.08);
+}
+```
+
+**Dark 模式边框卡**：
+```css
+.card {
+  background: #111827;
+  border: 1px solid #3c4043;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: none;
+}
+```
+
+**满铺色块"卡"**（品牌四色区块内的内容单元）：
+```css
+.color-block-blue  { background: #4285f4; color: #ffffff; }
+.color-block-red   { background: #ea4335; color: #ffffff; }
+.color-block-yellow { background: #fbbc04; color: #202124; }
+.color-block-green { background: #34a853; color: #ffffff; }
+```
+
+### 标题样式
+
+**Light 模式**：
+- 主标题：Inter / Noto Sans SC，字重 500（Medium），`#202124`，左对齐。字号为正文的 3-4 倍
+- 模块标题：字重 500，`#202124`，无装饰线
+- 数据标签：JetBrains Mono，字重 500，小字号，全大写，字母间距 0.05em
+
+**Dark 模式**：
+- 主标题：字重 600，`#f1f3f4` 冷白
+- 模块标题：浅蓝 `#8ab4f8` 或淡紫 `#c58af9`（三色循环）
+
+> ⚠️ Google 风格极少使用 700+ 字重。500（Medium）撑起 99% 的层级，这是"高级又克制"的核心。中文因笔画密度问题可使用 700-900 做标题。
+
+### 色彩预算映射
+
+**Light 模式**：
+- 60% 主色：白色背景 `#ffffff` + 灰底 `#f8f9fa`
+- 30% 辅助色：深炭灰 `#202124` 文字 + 品牌四色满铺色块
+- 10% 强调色：Google 蓝 `#1a73e8`（仅用于 CTA、链接）
+
+**Dark 模式**：
+- 60% 主色：深墨蓝 `#0a0e1a` + 深灰蓝 `#111827`
+- 30% 辅助色：冷白 `#f1f3f4` 文字 + 浅蓝/淡紫/浅绿标题
+- 10% 强调色：浅蓝 `#8ab4f8`（CTA）+ 淡紫 `#c58af9`（点缀）
+
+> **B9 颜色预算例外**：品牌四色满铺色块不计入主色限制。满铺色块是 B9 的核心视觉手段，而非"多余装饰"。
+
+### 图标风格
+
+- **线性图标**，线宽 1.5px，24×24 viewBox
+- Light 模式：颜色跟随 `#5f6368`
+- Dark 模式：颜色跟随 `#9aa0a6`
+
+### BigNumber 样式
+
+**Light 模式**：
+```css
+.bignum-value {
+  font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
+  font-size: 140px; /* A2尺寸，A1=72-96px, A3=96-120px, A4=96-140px */
+  font-weight: 700;
+  color: #1a73e8;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.bignum-label {
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 16px;
+  color: #5f6368;
+  margin-top: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+```
+
+**Dark 模式**：
+```css
+.bignum-value {
+  font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
+  font-size: 140px;
+  font-weight: 700;
+  color: #8ab4f8;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.bignum-label {
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+  font-size: 16px;
+  color: #9aa0a6;
+  margin-top: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+```
+
+### 署名样式
+
+**Light**：
+```css
+.signature {
+  color: #80868b;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+```
+
+**Dark**：
+```css
+.signature {
+  color: #9aa0a6;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+```
+
+---
+
 ## 风格选择速查表
 
 | 风格 | 核心情绪 | 适合内容 | 关键识别特征 |
@@ -648,6 +825,7 @@
 | B6 极简东方 | 宁静、克制、高级 | 艺术展览、奢侈品牌 | 极浅灰+墨黑+朱红细线+巨量留白 |
 | B7 数据新闻 | 理性、精确、可信 | 数据报告、行业分析 | 报纸白+海军蓝+等宽字体+网格线 |
 | B8 赛博街道 | 未来、 gritty、酷 | 游戏、科技、潮流 | 深黑+霓虹粉/电青+扫描线 |
+| B9 谷歌原生 | 克制、专业、胆大 | 产品介绍、ToB、活动 | 白底+Google蓝+品牌四色大色块 |
 
 ---
 

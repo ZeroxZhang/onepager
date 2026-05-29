@@ -21,10 +21,11 @@
 
 | 字体类型 | 传递情绪 | 适用风格 |
 |---------|---------|---------|
-| 无衬线体 (Sans-serif) | 现代、理性、效率 | B1, B2, B4, B5, B8 |
+| 无衬线体 (Sans-serif) | 现代、理性、效率 | B1, B2, B4, B5, B8, B9 |
 | 衬线体 (Serif) | 人文、历史、优雅 | B3, B6, B7 |
-| 等宽体 (Monospace) | 精确、技术、数据 | B1, B7, B8 (数据展示) |
+| 等宽体 (Monospace) | 精确、技术、数据 | B1, B7, B8, B9 (数据展示) |
 | 系统字体 | 原生、直接、无修饰 | B4 (粗野主义专用) |
+| Inter + Noto Sans SC | 克制、专业、国际化 | B9 (Google 原生专用) |
 
 ---
 
@@ -91,6 +92,23 @@ B4 风格**不使用 Google Fonts**，优先使用系统字体栈，传递原生
 | L4 正文 | 16-18px | 400-500 | 段落文字 |
 | L5 辅助说明 | 12-14px | 400 | 来源/日期/脚注 |
 
+### A4 竖版海报 (1080px)
+
+| 层级 | 字号 | 字重 | 用途 |
+|------|------|------|------|
+| BigNumber | 96-140px | 700-900 | 核心数据展示 |
+| L1 主标题 | 36-56px | 700-900 | 核心论点/产品名 |
+| L2 副标题 | 22-30px | 600-700 | 价值主张/方案名 |
+| L3 小标题 | 18-24px | 600-700 | 模块标题 |
+| L4 正文 | 16-18px | 400-500 | 段落文字 |
+| L5 辅助说明 | 12-14px | 400 | 来源/日期/脚注 |
+
+**A4 说明**：
+- 画布尺寸 1080×1440px（3:4），垂直空间比 A3 多 360px
+- 正文字号约为画布宽度的 1.5%-1.7%
+- BigNumber 与 A3 接近，但可适当放大至 140px（空间充裕时）
+- 2 栏布局或单栏+图表混合布局
+
 ### BigNumber 字号规范（强制）
 
 BigNumber 的字号必须是**页面上最大的文字元素**，必须超过主标题的字号。
@@ -100,6 +118,7 @@ BigNumber 的字号必须是**页面上最大的文字元素**，必须超过主
 | A1 | 72px | 84-96px | 28-32px | 14-16px |
 | A2 | 120px | 140-160px | 40-48px | 16-18px |
 | A3 | 96px | 120-132px | 32-40px | 14-16px |
+| A4 | 96px | 112-140px | 32-40px | 14-16px |
 
 **规则**：
 - BigNumber 数字与主标题的字号比至少为 **1.5:1**
@@ -276,6 +295,51 @@ BigNumber 的字号必须是**页面上最大的文字元素**，必须超过主
 - 正文：字重 400，轻微字母间距（`letter-spacing: 0.03em`）
 - 字重限制：400 / 600 / 800（最多3种）
 
+### B9 谷歌原生
+
+传达系统化克制与局部胆大。Google 官方网站设计语言。
+
+**Light 模式**（默认）：
+```css
+:root {
+  --font-heading: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-body: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', monospace;
+}
+```
+
+**Dark 模式**（I/O 风格）：
+```css
+:root {
+  --font-heading: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-body: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', monospace;
+}
+```
+
+- 主标题：Inter + Noto Sans SC，英文用字重 500，中文因笔画密度可用 700-900
+- 模块标题：字重 500，`#202124`（Light）/ `#f1f3f4`（Dark）
+- BigNumber：等宽字体 JetBrains Mono，字重 700，Google 蓝 `#1a73e8`（Light）/ 浅蓝 `#8ab4f8`（Dark）
+- 正文：字重 400，行高 1.6-1.7
+- 数据标签：等宽字体 JetBrains Mono，字重 500，小字号，全大写，`letter-spacing: 0.05em`
+- 字重限制：400 / 500 / 700（英文最多 3 种；中文标题允许 900 但不与英文混用）
+
+**中文排版特殊规则（B9 专属）**：
+- 中文标题推荐用 700-900（Noto Sans SC 900），英文标题配 500-600（Inter 600），这样中英文视觉权重相等
+- 中文正文行高 1.6-1.7，display 行高 1.15-1.3
+- 标题 48px 以上 `letter-spacing: -0.5px`，32-48px `-0.25px`，24px 以下 `0`
+- 中文按钮文字 `letter-spacing: 0`（不要照搬英文的 0.25px）
+- 正文建议 17-18px 起步（中文比英文同字号下显小）
+
+**Google Fonts 加载**：
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+</style>
+```
+
 ---
 
 ## 中文排版核心参数
@@ -316,6 +380,7 @@ p {
 | B6 极简东方 | 2.2 | 1.6 | 0.05em | 标题 font-weight: 400 |
 | B7 数据新闻 | 1.8 | 1.4 | 0.01em | 图表标签全大写 |
 | B8 赛博街道 | 1.8 | 1.4 | 0.03em | 正文 letter-spacing: 0.03em |
+| B9 谷歌原生 | 1.6-1.7 | 1.15-1.3 | 0 | 英文 500 字重为主，中文 700-900；标题 48px+ 负 letter-spacing |
 
 ---
 

@@ -4,10 +4,11 @@ Onepager — Quality Check Script
 
 Performs automated quality checks on generated HTML files before screenshot.
 Checks for: structure, BigNumber presence, blue-purple tones, emoji usage,
-color count, shadow abuse, layout issues, and contrast ratios.
+color count, shadow abuse, layout issues, contrast ratios, and size-specific
+layout rules (A2/A3/A4 fixed-height canvas).
 
 Usage:
-    python3 quality_check.py <input.html> [--style B?] [--size A?]
+    python3 quality_check.py <input.html> [--style B?] [--size A?] [--no-bignum]
 
 Exit codes:
     0 = PASS
@@ -18,6 +19,7 @@ Exit codes:
 import argparse
 import re
 import sys
+import unicodedata
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -34,7 +36,7 @@ class HTMLChecker(HTMLParser):
         self.has_bignum = False
         self.style_blocks = []
         self.text_content = []
-        self.color_values = set()
+        self.color_values = []  # list of (raw_str, rgb_tuple)
         self.box_shadows = []
         self.border_radii = []
         self.flex_ones = []
@@ -80,11 +82,7 @@ class HTMLChecker(HTMLParser):
         # Check inline styles for issues
         style = attrs_dict.get("style", "")
         if style:
-            self._check_inline_style(style)
-
-        # Check for absolute positioning
-        if style and "position:absolute" in style.replace(" ", ""):
-            self.absolute_positions.append(f"<{tag}> with inline style")
+            self._check_inline_style(style, tag)
 
     def handle_endtag(self, tag):
         if tag == "style":
@@ -100,17 +98,17 @@ class HTMLChecker(HTMLParser):
         elif not self.in_script:
             self.text_content.append(data)
 
-    def _check_inline_style(self, style):
+    def _check_inline_style(self, style, tag=""):
         """Check inline styles for common issues."""
         s = style.replace(" ", "")
-        if "flex:1" in s or "flex:1" in style.replace(" ", ""):
-            self.flex_ones.append(f"inline style: {style[:60]}")
+        if "flex:1" in s:
+            self.flex_ones.append(f"<{tag}> inline style: {style[:60]}")
         if "position:absolute" in s:
-            self.absolute_positions.append(f"inline style: {style[:60]}")
+            self.absolute_positions.append(f"<{tag}> inline style: {style[:60]}")
 
     def _extract_css_issues(self, css):
         """Extract colors, shadows, and layout issues from CSS blocks."""
-        # Extract color values
+        # Extract color values (store both raw string and parsed RGB)
         color_patterns = [
             r'#([0-9a-fA-F]{3,8})',
             r'rgb\((\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?)\)',
@@ -120,7 +118,9 @@ class HTMLChecker(HTMLParser):
         ]
         for pattern in color_patterns:
             for match in re.finditer(pattern, css):
-                self.color_values.add(match.group(0))
+                raw = match.group(0)
+                rgb = parse_color(raw)
+                self.color_values.append((raw, rgb))
 
         # Extract box-shadows
         shadow_pattern = r'box-shadow\s*:\s*([^;]+)'
@@ -135,20 +135,17 @@ class HTMLChecker(HTMLParser):
         # Check for flex: 1 in CSS
         flex_pattern = r'flex\s*:\s*1\b'
         for match in re.finditer(flex_pattern, css, re.IGNORECASE):
-            # Get surrounding context
             start = max(0, match.start() - 100)
             context = css[start:match.start() + 20]
             self.flex_ones.append(f"CSS block: ...{context}...")
 
         # Check for grid without grid-template-rows in fixed-height contexts
-        # This is a heuristic: if we see display:grid without grid-template-rows
-        # in a context that might be A2/A3
         grid_pattern = r'display\s*:\s*grid'
         rows_pattern = r'grid-template-rows'
         if re.search(grid_pattern, css, re.IGNORECASE):
             if not re.search(rows_pattern, css, re.IGNORECASE):
-                # Only flag if there's a fixed height context
-                if 'height:' in css.lower() and '1080' in css:
+                # Flag if there's any fixed-height context
+                if re.search(r'height\s*:\s*(1080|1440)px', css):
                     self.grid_template_rows_missing.append(
                         "Grid layout without explicit grid-template-rows in fixed-height context"
                     )
@@ -199,21 +196,14 @@ def is_blue_purple(r, g, b):
     if r is None or g is None or b is None:
         return False
 
-    # Detect blue-purple tones:
-    # Blue: B is significantly higher than R and G
-    # Purple: B and R are high, G is lower
-    # Blue-purple gradient: transitions between blue and purple
-
     max_val = max(r, g, b)
-    min_val = min(r, g, b)
 
-    # Pure blue/purple detection
+    # Blue: B is significantly higher than R and G
     if b > r + 30 and b > g + 30:
-        # Strong blue component
         if 200 <= max_val <= 255:
             return True
 
-    # Purple detection: R and B both high, G lower
+    # Purple detection: R and B both high, G is lower
     if r > 100 and b > 100 and g < min(r, b) - 20:
         if max_val > 150:
             return True
@@ -223,8 +213,6 @@ def is_blue_purple(r, g, b):
         (99, 102, 241),   # #6366f1 (indigo)
         (139, 92, 246),   # #8b5cf6 (violet)
         (124, 58, 237),   # #7c3aed (purple)
-        (37, 99, 235),    # #2563eb (bright blue - only flag if paired with purple)
-        (0, 212, 255),    # #00d4ff (cyan - flag if in gradient with purple)
     ]
 
     for kr, kg, kb in known_ai_colors:
@@ -236,9 +224,18 @@ def is_blue_purple(r, g, b):
 
 
 def is_emoji(char):
-    """Check if a character is an emoji."""
+    """Check if a character is an emoji using Unicode categories."""
+    try:
+        cat = unicodedata.category(char)
+        # So = Symbol, Other (includes most emoji)
+        # Sk = Symbol, Modifier
+        if cat == 'So' or cat == 'Sk':
+            return True
+    except (ValueError, TypeError):
+        pass
+
+    # Additional ranges not covered by category
     code = ord(char)
-    # Emoji ranges
     if 0x1F600 <= code <= 0x1F64F:  # Emoticons
         return True
     if 0x1F300 <= code <= 0x1F5FF:  # Misc Symbols and Pictographs
@@ -247,19 +244,17 @@ def is_emoji(char):
         return True
     if 0x1F1E6 <= code <= 0x1F1FF:  # Flags
         return True
-    if 0x2600 <= code <= 0x26FF:    # Misc symbols
+    if 0x1F900 <= code <= 0x1F9FF:  # Supplemental Symbols
         return True
-    if 0x2700 <= code <= 0x27BF:    # Dingbats
+    if 0x1FA00 <= code <= 0x1FA6F:  # Chess, etc.
         return True
-    if 0xFE00 <= code <= 0xFE0F:    # Variation Selectors
+    if 0x1FA70 <= code <= 0x1FAFF:  # Symbols Extended-A
         return True
-    if 0x1F900 <= code <= 0x1F9FF:  # Supplemental Symbols and Pictographs
+    if 0xFE00 <= code <= 0xFE0F:  # Variation Selectors
         return True
-    if 0x1F018 <= code <= 0x1F270:  # Chess symbols etc
+    if code == 0x200D:  # ZWJ
         return True
-    if 0x238C <= code <= 0x2454:    # Misc symbols
-        return True
-    if code == 0x200D:              # ZWJ
+    if 0x1F3FB <= code <= 0x1F3FF:  # Skin tone modifiers
         return True
     return False
 
@@ -295,6 +290,12 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
     warnings = []
     passed = []
 
+    # Normalize style/size
+    style_norm = (style or "").strip().upper()
+    size_norm = (size or "").strip().upper()
+    is_b9 = style_norm == "B9"
+    is_fixed_height = size_norm in ("A2", "A3", "A4")
+
     # ===== STRUCTURE CHECKS =====
     if checker.has_charset:
         passed.append("[STRUCTURE] UTF-8 charset declared")
@@ -325,14 +326,7 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
         errors.append("[BIGNUMBER] Missing BigNumber module (.bignum-* class not found). Every OnePage MUST include at least one BigNumber data display.")
 
     # ===== STYLE NORMALIZATION =====
-    # B9 (Google Native) intentionally uses Google blue (#4285f4 / #1a73e8)
-    # and the brand four-color palette, so the blue-purple detector and the
-    # color-count budget are relaxed for this style.
-    style_norm = (style or "").strip().upper()
-    is_b9 = style_norm == "B9"
-
-    # Google brand colors that must NOT be flagged as the "AI blue-purple look"
-    # when running in B9 mode.
+    # B9 (Google Native) intentionally uses Google blue and brand four-color
     B9_ALLOWED = {
         (66, 133, 244),   # #4285f4 brand blue
         (26, 115, 232),   # #1a73e8 primary blue
@@ -346,6 +340,8 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
     }
 
     def _is_b9_allowed(rgb):
+        if rgb is None:
+            return False
         for ar, ag, ab in B9_ALLOWED:
             if abs(rgb[0] - ar) + abs(rgb[1] - ag) + abs(rgb[2] - ab) <= 12:
                 return True
@@ -356,7 +352,6 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
     emojis_found = []
     for i, char in enumerate(full_text):
         if is_emoji(char):
-            # Get context
             start = max(0, i - 15)
             end = min(len(full_text), i + 16)
             context = full_text[start:end].replace('\n', ' ')
@@ -372,21 +367,32 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
             warnings.append(f"  ... and {len(emojis_found) - 5} more")
 
     # ===== COLOR CHECKS =====
-    # B7 数据新闻 uses #1e3a5f (deep navy) and #9f1239 (rust red) as legitimate palette colors
+    # B7 数据新闻 uses #1e3a5f (deep navy) and #9f1239 (rust red)
     b7_allowed_colors = {
         (30, 58, 95),    # #1e3a5f
         (159, 18, 57),   # #9f1239
     }
+
+    # Normalize colors: deduplicate by RGB tuple
+    seen_rgb = set()
+    unique_colors_raw = []
+    for raw, rgb in checker.color_values:
+        if rgb is not None:
+            if rgb not in seen_rgb:
+                seen_rgb.add(rgb)
+                unique_colors_raw.append(raw)
+
     bp_colors = []
-    for color in checker.color_values:
-        rgb = parse_color(color)
+    for raw, rgb in checker.color_values:
         if rgb and is_blue_purple(*rgb):
-            if style and style.upper() == "B7" and rgb in b7_allowed_colors:
+            if style_norm == "B7" and rgb in b7_allowed_colors:
                 continue
-            # In B9 mode, Google brand colors are expected, not "AI look".
             if is_b9 and _is_b9_allowed(rgb):
                 continue
-            bp_colors.append(color)
+            bp_colors.append(raw)
+
+    # Deduplicate blue-purple warnings
+    bp_colors = list(dict.fromkeys(bp_colors))
 
     if not bp_colors:
         if is_b9:
@@ -400,26 +406,23 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
         if len(bp_colors) > 8:
             warnings.append(f"  ... and {len(bp_colors) - 8} more")
 
-    # Color count. B9 (Google Native classic four-color) legitimately uses the
-    # brand four-color palette plus neutrals as full-bleed blocks, so it gets a
-    # higher budget.
-    unique_colors = len(checker.color_values)
+    # Color count (deduplicated by RGB)
+    unique_color_count = len(seen_rgb)
     if is_b9:
-        if unique_colors <= 12:
-            passed.append(f"[COLOR] Color palette is restrained for B9 Google Native ({unique_colors} unique colors)")
-        elif unique_colors <= 16:
-            warnings.append(f"[COLOR] B9 palette has {unique_colors} unique colors. Brand four-color + neutrals is expected, but consider keeping ≤12.")
+        if unique_color_count <= 12:
+            passed.append(f"[COLOR] Color palette is restrained for B9 Google Native ({unique_color_count} unique colors)")
+        elif unique_color_count <= 16:
+            warnings.append(f"[COLOR] B9 palette has {unique_color_count} unique colors. Brand four-color + neutrals is expected, but consider keeping <=12.")
         else:
-            errors.append(f"[COLOR] Too many colors ({unique_colors} unique) even for B9. Keep to Google brand four-color + neutrals + single blue CTA.")
-    elif unique_colors <= 7:
-        warnings.append(f"[COLOR] Color palette has {unique_colors} unique colors. Consider reducing to ≤7 for visual consistency.")
+            errors.append(f"[COLOR] Too many colors ({unique_color_count} unique) even for B9. Keep to Google brand four-color + neutrals + single blue CTA.")
+    elif unique_color_count <= 7:
+        warnings.append(f"[COLOR] Color palette has {unique_color_count} unique colors. Consider reducing to <=7 for visual consistency.")
     else:
-        errors.append(f"[COLOR] Too many colors ({unique_colors} unique). Limit to 3 main + 2 neutral colors maximum.")
+        errors.append(f"[COLOR] Too many colors ({unique_color_count} unique). Limit to 3 main + 2 neutral colors maximum.")
 
     # ===== SHADOW CHECKS =====
     glow_shadows = []
     for shadow in checker.box_shadows:
-        # Detect glow-like shadows (large blur radius with color)
         if re.search(r'\d{2,}px.*rgba?\([^)]*\)', shadow) or '0 0' in shadow:
             glow_shadows.append(shadow)
 
@@ -431,27 +434,57 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
             warnings.append(f"  - {s[:80]}")
 
     # ===== LAYOUT CHECKS =====
-    if checker.flex_ones:
-        warnings.append(f"[LAYOUT] Found {len(checker.flex_ones)} use(s) of 'flex: 1'. In fixed-height canvases (A2/A3), this can cause layout issues:")
-        for f in checker.flex_ones[:3]:
-            warnings.append(f"  - {f[:80]}")
-    else:
-        passed.append("[LAYOUT] No 'flex: 1' usage detected")
+    # Fixed-height canvas checks (A2/A3/A4)
+    if is_fixed_height:
+        if checker.flex_ones:
+            errors.append(f"[LAYOUT-FIXED] Found {len(checker.flex_ones)} use(s) of 'flex: 1' in {size_norm} fixed-height canvas. This causes layout issues:")
+            for f in checker.flex_ones[:3]:
+                errors.append(f"  - {f[:80]}")
+        else:
+            passed.append(f"[LAYOUT-FIXED] No 'flex: 1' usage in {size_norm} (correct)")
 
-    if checker.grid_template_rows_missing:
-        for msg in checker.grid_template_rows_missing:
-            warnings.append(f"[LAYOUT] {msg}")
-    else:
-        passed.append("[LAYOUT] Grid layouts appear properly configured")
+        if checker.grid_template_rows_missing:
+            for msg in checker.grid_template_rows_missing:
+                errors.append(f"[LAYOUT-FIXED] {msg}")
+        else:
+            passed.append(f"[LAYOUT-FIXED] Grid layouts properly configured for {size_norm}")
 
+        # Check for grid-template-rows in the page-level CSS
+        has_page_grid_rows = False
+        for css in checker.style_blocks:
+            if re.search(r'grid-template-rows', css):
+                has_page_grid_rows = True
+                break
+        if has_page_grid_rows:
+            passed.append(f"[LAYOUT-FIXED] grid-template-rows found in {size_norm} layout")
+        else:
+            warnings.append(f"[LAYOUT-FIXED] No grid-template-rows detected in {size_norm}. Fixed-height canvases MUST declare explicit row heights.")
+    else:
+        # A1: flex:1 is a warning, not an error
+        if checker.flex_ones:
+            warnings.append(f"[LAYOUT] Found {len(checker.flex_ones)} use(s) of 'flex: 1'. In fixed-height canvases (A2/A3/A4), this can cause layout issues:")
+            for f in checker.flex_ones[:3]:
+                warnings.append(f"  - {f[:80]}")
+        else:
+            passed.append("[LAYOUT] No 'flex: 1' usage detected")
+
+        if checker.grid_template_rows_missing:
+            for msg in checker.grid_template_rows_missing:
+                warnings.append(f"[LAYOUT] {msg}")
+        else:
+            passed.append("[LAYOUT] Grid layouts appear properly configured")
+
+    # Absolute positioning (all sizes)
     if checker.absolute_positions:
         non_decorative = []
         for pos in checker.absolute_positions:
-            # Decorative elements should have pointer-events: none
             if 'pointer-events' not in pos:
                 non_decorative.append(pos)
         if non_decorative:
-            warnings.append(f"[LAYOUT] Found {len(non_decorative)} absolute-positioned element(s) without pointer-events:none. Ensure these are decorative only:")
+            if is_fixed_height:
+                errors.append(f"[LAYOUT-FIXED] Found {len(non_decorative)} absolute-positioned element(s) without pointer-events:none in {size_norm}:")
+            else:
+                warnings.append(f"[LAYOUT] Found {len(non_decorative)} absolute-positioned element(s) without pointer-events:none. Ensure these are decorative only:")
             for p in non_decorative[:3]:
                 warnings.append(f"  - {p[:80]}")
         else:
@@ -459,44 +492,71 @@ def run_checks(html_path, style=None, size=None, no_bignum=False):
     else:
         passed.append("[LAYOUT] No absolute positioning detected")
 
-    # ===== CONTRAST CHECK (heuristic) =====
-    # Try to extract body text color and background color
-    body_color = None
-    bg_color = None
+    # ===== CONTRAST CHECK =====
+    # Check multiple text/background combinations
+    contrast_pairs = []
+
     for css in checker.style_blocks:
-        # Look for body color
+        # body color vs background
+        body_color = None
+        bg_color = None
+
         m = re.search(r'body\s*\{[^}]*color\s*:\s*([^;}]+)', css, re.IGNORECASE | re.DOTALL)
         if m:
             body_color = m.group(1).strip()
         m = re.search(r'body\s*\{[^}]*background(?:-color)?\s*:\s*([^;}]+)', css, re.IGNORECASE | re.DOTALL)
         if m:
             bg_color = m.group(1).strip()
-        # Also check .page
+
+        # .page background
         m = re.search(r'\.page\s*\{[^}]*background(?:-color)?\s*:\s*([^;}]+)', css, re.IGNORECASE | re.DOTALL)
         if m:
             bg_color = m.group(1).strip()
 
-    if body_color and bg_color:
-        text_rgb = parse_color(body_color)
-        bg_rgb = parse_color(bg_color)
+        if body_color and bg_color:
+            contrast_pairs.append(("Body text", body_color, bg_color))
+
+        # .bignum-value color vs background
+        bn_color = None
+        m = re.search(r'\.bignum-value\s*\{[^}]*color\s*:\s*([^;}]+)', css, re.IGNORECASE | re.DOTALL)
+        if m:
+            bn_color = m.group(1).strip()
+        if bn_color and bg_color:
+            contrast_pairs.append(("BigNumber", bn_color, bg_color))
+
+        # Footer text vs footer background
+        footer_color = None
+        footer_bg = None
+        m = re.search(r'\.footer\s*\{[^}]*color\s*:\s*([^;}]+)', css, re.IGNORECASE | re.DOTALL)
+        if m:
+            footer_color = m.group(1).strip()
+        m = re.search(r'\.footer\s*\{[^}]*background(?:-color)?\s*:\s*([^;}]+)', css, re.IGNORECASE | re.DOTALL)
+        if m:
+            footer_bg = m.group(1).strip()
+        if footer_color and footer_bg:
+            contrast_pairs.append(("Footer", footer_color, footer_bg))
+
+    contrast_checked = False
+    for label, text_c, bg_c in contrast_pairs:
+        text_rgb = parse_color(text_c)
+        bg_rgb = parse_color(bg_c)
         if text_rgb and bg_rgb:
             ratio = check_contrast(bg_rgb, text_rgb)
+            contrast_checked = True
             if ratio >= 4.5:
-                passed.append(f"[CONTRAST] Body text contrast ratio: {ratio:.2f}:1 (WCAG AA compliant)")
+                passed.append(f"[CONTRAST] {label} contrast ratio: {ratio:.2f}:1 (WCAG AA compliant)")
             elif ratio >= 3.0:
-                warnings.append(f"[CONTRAST] Body text contrast ratio: {ratio:.2f}:1 (below WCAG AA 4.5:1, above 3:1)")
+                warnings.append(f"[CONTRAST] {label} contrast ratio: {ratio:.2f}:1 (below WCAG AA 4.5:1, above 3:1)")
             else:
-                errors.append(f"[CONTRAST] Body text contrast ratio: {ratio:.2f}:1 (fails WCAG AA 4.5:1)")
-        else:
-            warnings.append(f"[CONTRAST] Could not parse colors for contrast check (text: {body_color}, bg: {bg_color})")
-    else:
-        warnings.append(f"[CONTRAST] Could not detect body text color ({body_color}) or background color ({bg_color})")
+                errors.append(f"[CONTRAST] {label} contrast ratio: {ratio:.2f}:1 (fails WCAG AA 4.5:1)")
+
+    if not contrast_checked:
+        warnings.append("[CONTRAST] Could not detect enough color pairs for contrast checking")
 
     # ===== BORDER RADIUS CONSISTENCY =====
     if checker.border_radii:
         unique_radii = set()
         for r in checker.border_radii:
-            # Normalize: extract numeric values
             nums = re.findall(r'(\d+)px', r)
             unique_radii.update(int(n) for n in nums)
 
@@ -544,33 +604,33 @@ def main():
         print(f"ERRORS ({len(errors)})")
         print(f"{'='*60}")
         for e in errors:
-            print(f"  ❌ {e}")
+            print(f"  [X] {e}")
 
     if warnings:
         print(f"\n{'='*60}")
         print(f"WARNINGS ({len(warnings)})")
         print(f"{'='*60}")
         for w in warnings:
-            print(f"  ⚠️  {w}")
+            print(f"  [!] {w}")
 
     print(f"\n{'='*60}")
     print(f"PASSED ({len(passed)})")
     print(f"{'='*60}")
     for p in passed:
-        print(f"  ✅ {p}")
+        print(f"  [OK] {p}")
 
     # Final verdict
     print(f"\n{'='*60}")
     if errors:
-        print("VERDICT: FAIL ❌")
+        print("VERDICT: FAIL [X]")
         print("Fix all errors before proceeding to screenshot.")
         sys.exit(2)
     elif warnings:
-        print("VERDICT: WARN ⚠️")
+        print("VERDICT: WARN [!]")
         print("Review warnings and fix if possible before screenshot.")
         sys.exit(1)
     else:
-        print("VERDICT: PASS ✅")
+        print("VERDICT: PASS [OK]")
         print("All checks passed. Proceed to screenshot.")
         sys.exit(0)
 

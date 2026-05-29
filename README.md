@@ -24,7 +24,7 @@ Onepager is a Claude Agent Skill that transforms your provided text, Markdown, o
 
 ### Core Features
 
-- **Multiple Sizes**: Vertical scroll (Mobile), Horizontal widescreen (16:9), Square (1:1), Portrait poster (3:4 for Xiaohongshu/WeChat)
+- **Multiple Sizes**: Vertical scroll (Mobile), Horizontal widescreen (16:9), Square (1:1), Portrait poster (3:4 for Xiaohongshu/WeChat) — 4 sizes total
 - **Nine Design Styles**: Dark Editorial, Swiss Precision, Organic Nature, Constructivist Brutalism, Neo-Pop Editorial, Minimalist East, Data Journalism, Cyber Street, Google Native
 - **Three Information Densities**: Low/Medium/High density, automatically rewriting content to match the layout
 - **Content Intelligence**: Applies consulting-grade content principles (MECE, Pyramid, SCQA, So What, Quantification) to restructure content for maximum impact
@@ -85,7 +85,7 @@ onepager/
 ├── references/
 │   ├── design-styles.md      # Full visual specifications for the 9 design styles
 │   ├── typography.md         # Chinese font schemes and typography parameters
-│   ├── layout-specs.md       # Layout specifications for the 3 sizes
+│   ├── layout-specs.md       # Layout specifications for the 4 sizes
 │   ├── diagram-guide.md      # Diagram type matching and drawing guide
 │   ├── density-guide.md      # Information density and content rewriting rules
 │   ├── type-differentiation.md # Differentiated guidelines for 5 content types
@@ -194,7 +194,7 @@ onepager/
 ├── references/
 │   ├── design-styles.md      # 九种设计风格的完整视觉规范
 │   ├── typography.md         # 中文字体方案与排版参数
-│   ├── layout-specs.md       # 三种尺寸的版式规范
+│   ├── layout-specs.md       # 四种尺寸的版式规范
 │   ├── diagram-guide.md      # 图表类型匹配与绘制指南
 │   ├── density-guide.md      # 信息密度与内容改写规则
 │   ├── type-differentiation.md # 五种内容类型的差异化指南

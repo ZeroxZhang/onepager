@@ -6,7 +6,7 @@ Uses Playwright to render an HTML file and capture it as a high-quality PNG imag
 Supports fixed dimensions and auto-height (full-page) modes.
 
 Usage:
-    python3 capture.py <input.html> --output <output.png> --width <px> [--height <px|auto>] [--scale <factor>]
+    python3 capture.py <input.html> --output <output.png> --width <px> [--height <px|auto>] [--scale <factor>] [--timeout <ms>]
 
 Examples:
     # Portrait (auto height)
@@ -28,7 +28,7 @@ import os
 import sys
 
 
-async def capture(input_path: str, output_path: str, width: int, height: str, scale: float):
+async def capture(input_path: str, output_path: str, width: int, height: str, scale: float, timeout: int):
     """Render HTML and capture screenshot."""
     try:
         from playwright.async_api import async_playwright
@@ -52,10 +52,20 @@ async def capture(input_path: str, output_path: str, width: int, height: str, sc
             device_scale_factor=scale,
         )
 
-        # Navigate and wait for fonts and rendering to complete
-        await page.goto(file_url, wait_until="networkidle")
-        # Extra wait for font loading
-        await page.wait_for_timeout(2000)
+        # Navigate with explicit timeout
+        try:
+            await page.goto(file_url, wait_until="networkidle", timeout=timeout)
+        except Exception as e:
+            print(f"WARN: Page navigation timeout or error: {e}")
+            print("      Attempting to proceed with partial render...")
+
+        # Wait for fonts to finish loading (use document.fonts.ready when available)
+        try:
+            await page.evaluate("document.fonts?.ready")
+        except Exception:
+            pass  # document.fonts may not be available in all contexts
+        # Short buffer for final paint
+        await page.wait_for_timeout(500)
 
         if height == "auto":
             # Full-page screenshot (auto height)
@@ -70,6 +80,8 @@ async def capture(input_path: str, output_path: str, width: int, height: str, sc
             # Fixed viewport screenshot
             h = int(height)
             await page.set_viewport_size({"width": width, "height": h})
+            # Brief re-render after viewport resize
+            await page.wait_for_timeout(300)
             await page.screenshot(
                 path=output_path,
                 full_page=False,
@@ -81,9 +93,9 @@ async def capture(input_path: str, output_path: str, width: int, height: str, sc
 
     print(f"OK: Screenshot saved to {output_path}")
     if height == "auto":
-        print(f"    Dimensions: {width}px × {actual_height}px (scale: {scale}x, auto height)")
+        print(f"    Dimensions: {width}px x {actual_height}px (scale: {scale}x, auto height)")
     else:
-        print(f"    Dimensions: {width}px × {height}px (scale: {scale}x)")
+        print(f"    Dimensions: {width}px x {height}px (scale: {scale}x)")
 
 
 def main():
@@ -93,9 +105,10 @@ def main():
     parser.add_argument("--width", "-w", type=int, required=True, help="Viewport width in pixels")
     parser.add_argument("--height", default="auto", help="Viewport height in pixels, or 'auto' for full page")
     parser.add_argument("--scale", "-s", type=float, default=2.0, help="Device scale factor (default: 2.0 for Retina)")
+    parser.add_argument("--timeout", "-t", type=int, default=30000, help="Navigation timeout in ms (default: 30000)")
     args = parser.parse_args()
 
-    asyncio.run(capture(args.input, args.output, args.width, args.height, args.scale))
+    asyncio.run(capture(args.input, args.output, args.width, args.height, args.scale, args.timeout))
 
 
 if __name__ == "__main__":
