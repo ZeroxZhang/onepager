@@ -5,48 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Onepager — AI驱动的信息可视化技能</title>
 
-    <!-- T4 Poster Tier C Fonts: Anton + Smiley Sans + Inter + Noto Sans SC -->
+    <!-- Tier C Poster Fonts: Anton + Smiley Sans + Inter + Noto Sans SC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cn-fontsource-smiley-sans-oblique/font.css">
 
     <style>
         /* ============================================
-           SVG ICON SYSTEM — stroke-based, 24x24 viewBox
+           SVG ICON SYSTEM
            ============================================ */
         .icon { width: 24px; height: 24px; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .icon-sm { width: 16px; height: 16px; }
         .icon-lg { width: 36px; height: 36px; }
-        .icon-xl { width: 48px; height: 48px; }
         .icon-fill { fill: currentColor; stroke: none; }
 
         /* ============================================
-           BASE RESET & VARIABLES — B9 Google Native
+           BASE RESET & B9 GOOGLE NATIVE TOKENS
            ============================================ */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            /* B9 Google Colors */
             --google-blue:   #4285f4;
             --google-red:    #ea4335;
             --google-yellow: #fbbc04;
             --google-green:  #34a853;
             --cta-blue:      #1a73e8;
-            --text-primary:  #202124;
-            --text-secondary:#5f6368;
+            --ink:           #202124;
+            --text2:         #5f6368;
             --text-on-color: #ffffff;
             --text-on-yellow:#202124;
             --surface:       #f8f9fa;
             --white:         #ffffff;
             --border:        #dadce0;
 
-            /* T4 Tier C Font Stack */
             --font-display:  'Anton', 'Smiley Sans Oblique', 'Noto Sans SC', 'PingFang SC', sans-serif;
             --font-body:     'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             --font-mono:     'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
         }
 
         /* ============================================
-           PAGE CONTAINER — A4 1080×1440
+           PAGE — A4 1080×1440 Full-Bleed Stack
            ============================================ */
         .page {
             width: 1080px;
@@ -55,15 +54,15 @@
             position: relative;
             background: var(--white);
             font-family: var(--font-body);
-            color: var(--text-primary);
+            color: var(--ink);
             display: grid;
-            grid-template-rows: 560px 340px 340px 200px;
+            grid-template-rows: 580px 320px 340px 200px;
             align-content: start;
         }
 
         /* ============================================
-           HERO — Red full-bleed block, 560px
-           P1: Giant typography
+           HERO — Red full-bleed, 580px
+           P1 GIANT TYPE + A3 STROKE TEXT + A6 STICKER
            ============================================ */
         .hero {
             background: var(--google-red);
@@ -73,60 +72,125 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 48px 80px;
+            padding: 56px 80px 48px;
             position: relative;
             overflow: hidden;
         }
 
-        /* Decorative background pattern — subtle Google dot grid */
+        /* Dot grid — Google-style subtle pattern */
         .hero::before {
             content: '';
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
             background-size: 32px 32px;
             pointer-events: none;
         }
 
-        .hero-tag {
+        /* A6 STICKER TAG — rotated "v3.0" badge */
+        .sticker {
+            position: absolute;
+            top: 40px;
+            right: 56px;
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 900;
+            background: var(--google-yellow);
+            color: var(--text-on-yellow);
+            padding: 10px 20px;
+            transform: rotate(5deg);
+            z-index: 2;
+            letter-spacing: 0.02em;
+        }
+
+        /* A6 STICKER TAG 2 — bottom left */
+        .sticker-2 {
+            position: absolute;
+            bottom: 48px;
+            left: 64px;
             font-family: var(--font-body);
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 0.2em;
+            font-size: 13px;
+            font-weight: 700;
+            background: var(--white);
+            color: var(--google-red);
+            padding: 6px 16px;
+            border-radius: 100px;
+            transform: rotate(-3deg);
+            z-index: 2;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
-            opacity: 0.85;
-            margin-bottom: 24px;
+        }
+
+        .hero-eyebrow {
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 28px;
             position: relative;
             z-index: 1;
         }
 
-        .hero-title {
-            font-family: var(--font-display);
-            font-size: 120px;
-            font-weight: 900;
-            line-height: 0.92;
-            letter-spacing: -0.03em;
-            text-transform: uppercase;
+        /* Hero title with A3 stroke/fill mix */
+        h1.hero-title-wrap {
             position: relative;
             z-index: 1;
+            line-height: 0.9;
+            font-weight: 900;
+        }
+
+        .hero-title-fill {
+            font-family: var(--font-display);
+            font-size: 130px;
+            font-weight: 900;
+            line-height: 0.88;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .hero-title-stroke {
+            font-family: var(--font-display);
+            font-size: 130px;
+            font-weight: 900;
+            line-height: 0.88;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            display: block;
+            -webkit-text-stroke: 3px rgba(255,255,255,0.85);
+            color: transparent;
+            margin-top: -8px;
         }
 
         .hero-subtitle {
             font-family: var(--font-body);
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 400;
-            opacity: 0.92;
-            margin-top: 20px;
+            opacity: 0.9;
+            margin-top: 24px;
             letter-spacing: 0.04em;
             position: relative;
             z-index: 1;
         }
 
-        /* BigNumber row inside hero */
+        /* Thick accent underline under subtitle */
+        .hero-subtitle::after {
+            content: '';
+            display: block;
+            width: 64px;
+            height: 5px;
+            background: var(--white);
+            margin: 16px auto 0;
+            opacity: 0.7;
+        }
+
+        /* BigNumber row */
         .hero-bignums {
             display: flex;
-            gap: 64px;
-            margin-top: 40px;
+            gap: 56px;
+            margin-top: 32px;
             position: relative;
             z-index: 1;
         }
@@ -137,7 +201,7 @@
 
         .hero-bignum .num {
             font-family: var(--font-display);
-            font-size: 72px;
+            font-size: 68px;
             font-weight: 900;
             line-height: 1;
             letter-spacing: -0.02em;
@@ -145,15 +209,16 @@
 
         .hero-bignum .label {
             font-family: var(--font-body);
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             opacity: 0.8;
-            margin-top: 6px;
+            margin-top: 4px;
             letter-spacing: 0.05em;
         }
 
         /* ============================================
-           BLOCK 1 — Blue full-bleed, 340px
+           BLOCK 1 — Blue full-bleed, 320px
+           A4 OVERSIZED KICKER + thick underline
            ============================================ */
         .block-blue {
             background: var(--google-blue);
@@ -161,63 +226,96 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 48px 80px;
+            padding: 40px 80px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .block-label {
+        /* A4 KICKER — giant semi-transparent number behind */
+        .kicker-num {
+            position: absolute;
+            right: 40px;
+            top: -20px;
+            font-family: var(--font-display);
+            font-size: 180px;
+            font-weight: 900;
+            line-height: 1;
+            color: rgba(255,255,255,0.08);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .block-blue .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-label {
             font-family: var(--font-body);
             font-size: 12px;
             font-weight: 500;
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            opacity: 0.75;
+            opacity: 0.7;
             margin-bottom: 12px;
         }
 
-        .block-title {
+        .section-title {
             font-family: var(--font-display);
-            font-size: 48px;
+            font-size: 44px;
             font-weight: 900;
             line-height: 1.05;
             letter-spacing: -0.02em;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
+            display: inline-block;
+        }
+
+        /* Thick underline under section title */
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.4);
+            margin-top: 8px;
         }
 
         .feature-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px 48px;
+            gap: 16px 40px;
         }
 
         .feature-item {
             display: flex;
             align-items: flex-start;
-            gap: 14px;
+            gap: 12px;
         }
 
         .feature-item .icon-lg {
             flex-shrink: 0;
-            margin-top: 2px;
-            opacity: 0.9;
+            margin-top: 1px;
+            opacity: 0.85;
         }
 
         .feature-text h4 {
             font-family: var(--font-body);
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .feature-text p {
             font-family: var(--font-body);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 400;
-            opacity: 0.85;
+            opacity: 0.8;
             line-height: 1.5;
         }
 
         /* ============================================
            BLOCK 2 — Green full-bleed, 340px
+           Pipeline + stats
            ============================================ */
         .block-green {
             background: var(--google-green);
@@ -225,34 +323,55 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 48px 80px;
+            padding: 40px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* A4 KICKER */
+        .kicker-num-2 {
+            position: absolute;
+            left: 32px;
+            bottom: -30px;
+            font-family: var(--font-display);
+            font-size: 160px;
+            font-weight: 900;
+            line-height: 1;
+            color: rgba(255,255,255,0.07);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .block-green .content {
+            position: relative;
+            z-index: 1;
         }
 
         .pipeline-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 6px;
+            margin-top: 12px;
         }
 
         .pipeline-step {
             flex: 0 0 auto;
             text-align: center;
-            min-width: 100px;
+            min-width: 90px;
         }
 
         .pipeline-step .step-num {
             font-family: var(--font-display);
-            font-size: 56px;
+            font-size: 52px;
             font-weight: 900;
             line-height: 1;
-            opacity: 0.3;
+            opacity: 0.35;
         }
 
         .pipeline-step .step-name {
             font-family: var(--font-body);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             margin-top: 4px;
             opacity: 0.9;
@@ -260,21 +379,22 @@
 
         .pipeline-arrow {
             flex-shrink: 0;
-            opacity: 0.5;
-            font-size: 24px;
+            opacity: 0.4;
+            font-size: 22px;
             font-weight: 300;
+            padding-bottom: 12px;
         }
 
-        /* Highlight box inside green block */
+        /* Highlight strip */
         .highlight-strip {
             display: flex;
-            gap: 32px;
-            margin-top: 28px;
-            padding-top: 24px;
+            gap: 28px;
+            margin-top: 24px;
+            padding-top: 20px;
             border-top: 1px solid rgba(255,255,255,0.2);
         }
 
-        .highlight-strip .hs-item {
+        .hs-item {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -282,21 +402,22 @@
 
         .hs-item .hs-num {
             font-family: var(--font-display);
-            font-size: 40px;
+            font-size: 38px;
             font-weight: 900;
             line-height: 1;
         }
 
         .hs-item .hs-label {
             font-family: var(--font-body);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             opacity: 0.85;
             line-height: 1.3;
         }
 
         /* ============================================
-           CTA BLOCK — White + Yellow accent, 200px
+           CTA BLOCK — White + yellow top bar, 200px
+           Poster mode: hard-border button
            ============================================ */
         .cta-block {
             background: var(--white);
@@ -304,23 +425,22 @@
             align-items: center;
             justify-content: space-between;
             padding: 40px 80px;
-            border-top: 4px solid var(--google-yellow);
+            border-top: 6px solid var(--google-yellow);
         }
 
         .cta-left {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .cta-command {
             font-family: var(--font-mono);
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 500;
-            color: var(--text-primary);
+            color: var(--ink);
             background: var(--surface);
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 12px 24px;
             display: inline-block;
             letter-spacing: 0.02em;
         }
@@ -328,105 +448,93 @@
         .cta-url {
             font-family: var(--font-body);
             font-size: 14px;
-            color: var(--text-secondary);
+            color: var(--text2);
         }
 
+        /* Poster mode button: 2px hard border rectangle */
         .cta-right {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .cta-badge {
+        .cta-btn {
             font-family: var(--font-display);
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 900;
             color: var(--google-red);
-            letter-spacing: -0.01em;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 14px 32px;
+            border: 3px solid var(--google-red);
+            background: transparent;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Thick underline text accent */
+        .cta-btn-underline {
+            font-family: var(--font-body);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ink);
+            text-decoration: none;
+            border-bottom: 4px solid var(--google-blue);
+            padding-bottom: 4px;
+            letter-spacing: 0.02em;
         }
 
         .cta-sig {
             font-family: var(--font-body);
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--text2);
             font-weight: 400;
         }
 
         /* ============================================
-           SVG ICON DEFINITIONS
+           SVG ICON SPRITE
            ============================================ */
         .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
     </style>
 </head>
 <body>
 
-<!-- Hidden SVG icon sprite -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
     <defs>
-        <symbol id="icon-zap" viewBox="0 0 24 24">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </symbol>
-        <symbol id="icon-layout" viewBox="0 0 24 24">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
-            <line x1="9" y1="9" x2="9" y2="21"/>
-        </symbol>
-        <symbol id="icon-check-circle" viewBox="0 0 24 24">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-        </symbol>
-        <symbol id="icon-palette" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 2a10 10 0 0 1 0 20"/>
-            <path d="M12 2a10 10 0 0 0 0 20"/>
-            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/>
-            <circle cx="15.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/>
-            <circle cx="7" cy="14" r="1.5" fill="currentColor" stroke="none"/>
-            <circle cx="16" cy="15" r="1.5" fill="currentColor" stroke="none"/>
-        </symbol>
-        <symbol id="icon-cpu" viewBox="0 0 24 24">
-            <rect x="4" y="4" width="16" height="16" rx="2"/>
-            <rect x="9" y="9" width="6" height="6"/>
-            <line x1="9" y1="1" x2="9" y2="4"/>
-            <line x1="15" y1="1" x2="15" y2="4"/>
-            <line x1="9" y1="20" x2="9" y2="23"/>
-            <line x1="15" y1="20" x2="15" y2="23"/>
-            <line x1="20" y1="9" x2="23" y2="9"/>
-            <line x1="20" y1="14" x2="23" y2="14"/>
-            <line x1="1" y1="9" x2="4" y2="9"/>
-            <line x1="1" y1="14" x2="4" y2="14"/>
-        </symbol>
-        <symbol id="icon-type" viewBox="0 0 24 24">
-            <polyline points="4 7 4 4 20 4 20 7"/>
-            <line x1="9" y1="20" x2="15" y2="20"/>
-            <line x1="12" y1="4" x2="12" y2="20"/>
-        </symbol>
-        <symbol id="icon-image" viewBox="0 0 24 24">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/>
-            <polyline points="21 15 16 10 5 21"/>
-        </symbol>
-        <symbol id="icon-shield" viewBox="0 0 24 24">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <polyline points="9 12 11 14 15 10"/>
-        </symbol>
-        <symbol id="icon-github" viewBox="0 0 24 24">
-            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-        </symbol>
+        <symbol id="icon-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+        <symbol id="icon-palette" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 2a10 10 0 0 0 0 20"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="15.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="7" cy="14" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="15" r="1.5" fill="currentColor" stroke="none"/></symbol>
+        <symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></symbol>
+        <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+        <symbol id="icon-layers" viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></symbol>
+        <symbol id="icon-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21 15 16 10 5 21"/></symbol>
+        <symbol id="icon-github" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></symbol>
     </defs>
 </svg>
 
 <!-- ============================================
-     PAGE — A4 1080×1440 Full-Bleed Stack
+     PAGE — A4 1080×1440
      ============================================ -->
 <div class="page">
 
-    <!-- HERO: Red block, 560px, P1 giant typography -->
+    <!-- HERO: Red block, 580px -->
     <section class="hero">
-        <div class="hero-tag">Claude Code Agent Skill</div>
-        <h1 class="hero-title">ONEPAGER</h1>
-        <p class="hero-subtitle">文字 → 一页纸海报 · AI 驱动的信息可视化技能</p>
+        <!-- A6 Sticker Tags -->
+        <div class="sticker">v3.0</div>
+        <div class="sticker-2">CLAUDE CODE SKILL</div>
+
+        <div class="hero-eyebrow">文字 · 设计 · 代码 — 三者合一</div>
+
+        <!-- A3 Stroke/Fill Mix Title -->
+        <h1 class="hero-title-wrap">
+            <span class="hero-title-fill">ONEPAGER</span>
+            <span class="hero-title-stroke" aria-hidden="true">ONEPAGER</span>
+        </h1>
+
+        <p class="hero-subtitle">AI 驱动的信息可视化技能 — 文字到海报，一步到位</p>
+
+        <!-- BigNumbers -->
         <div class="hero-bignums">
             <div class="hero-bignum">
                 <div class="num">9</div>
@@ -440,108 +548,118 @@
                 <div class="num">4</div>
                 <div class="label">尺寸规格</div>
             </div>
+            <div class="hero-bignum">
+                <div class="num">3</div>
+                <div class="label">信息密度</div>
+            </div>
         </div>
     </section>
 
-    <!-- BLOCK 1: Blue block, 340px, core capabilities -->
+    <!-- BLOCK 1: Blue, 320px, A4 Kicker behind -->
     <section class="block-blue">
-        <div class="block-label">核心能力</div>
-        <h2 class="block-title">从文字到海报，一步到位</h2>
-        <div class="feature-grid">
-            <div class="feature-item">
-                <svg class="icon icon-lg"><use href="#icon-zap"/></svg>
-                <div class="feature-text">
-                    <h4>T1-T4 内容类型</h4>
-                    <p>商业说服 / 使用指南 / 信息图 / 宣传海报，含 focus 子参数精准适配</p>
+        <div class="kicker-num" aria-hidden="true">01</div>
+        <div class="content">
+            <div class="section-label">核心能力</div>
+            <h2 class="section-title">专业设计，零门槛</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <svg class="icon icon-lg"><use href="#icon-layers"/></svg>
+                    <div class="feature-text">
+                        <h4>T1-T4 类型系统</h4>
+                        <p>商业说服 / 使用指南 / 信息图 / 宣传海报 — 含 focus 子参数精准适配</p>
+                    </div>
                 </div>
-            </div>
-            <div class="feature-item">
-                <svg class="icon icon-lg"><use href="#icon-palette"/></svg>
-                <div class="feature-text">
-                    <h4>9 种设计风格</h4>
-                    <p>瑞士精密 · 谷歌原生 · 暗夜编辑 · 数据新闻 · 赛博街道 · 极简东方…</p>
+                <div class="feature-item">
+                    <svg class="icon icon-lg"><use href="#icon-palette"/></svg>
+                    <div class="feature-text">
+                        <h4>9 种设计风格</h4>
+                        <p>瑞士精密 · 谷歌原生 · 暗夜编辑 · 赛博街道 · 极简东方 · 数据新闻…</p>
+                    </div>
                 </div>
-            </div>
-            <div class="feature-item">
-                <svg class="icon icon-lg"><use href="#icon-cpu"/></svg>
-                <div class="feature-text">
-                    <h4>智能内容重构</h4>
-                    <p>MECE + 金字塔原理 + SCQA 叙事 + So What 测试，咨询级内容原则</p>
+                <div class="feature-item">
+                    <svg class="icon icon-lg"><use href="#icon-cpu"/></svg>
+                    <div class="feature-text">
+                        <h4>智能内容重构</h4>
+                        <p>MECE + 金字塔原理 + SCQA 叙事 + So What 测试 — 咨询级内容引擎</p>
+                    </div>
                 </div>
-            </div>
-            <div class="feature-item">
-                <svg class="icon icon-lg"><use href="#icon-check-circle"/></svg>
-                <div class="feature-text">
-                    <h4>自动质检 + 截图</h4>
-                    <p>Playwright 渲染 → PNG 高清输出，内置配色/排版/对比度合规检查</p>
+                <div class="feature-item">
+                    <svg class="icon icon-lg"><use href="#icon-check-circle"/></svg>
+                    <div class="feature-text">
+                        <h4>自动质检 + 截图</h4>
+                        <p>Playwright 渲染高清 PNG — 配色/排版/对比度合规检查一步到位</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- BLOCK 2: Green block, 340px, workflow + highlights -->
+    <!-- BLOCK 2: Green, 340px, A4 Kicker behind -->
     <section class="block-green">
-        <div class="block-label">工作流</div>
-        <h2 class="block-title">6 阶段渐进式生成</h2>
-        <div class="pipeline-row">
-            <div class="pipeline-step">
-                <div class="step-num">01</div>
-                <div class="step-name">内容分析</div>
+        <div class="kicker-num-2" aria-hidden="true">02</div>
+        <div class="content">
+            <div class="section-label">工作流</div>
+            <h2 class="section-title">6 阶段渐进式生成</h2>
+            <div class="pipeline-row">
+                <div class="pipeline-step">
+                    <div class="step-num">01</div>
+                    <div class="step-name">内容分析</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-num">02</div>
+                    <div class="step-name">交互配置</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-num">03</div>
+                    <div class="step-name">内容重构</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-num">04</div>
+                    <div class="step-name">生成 HTML</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-num">05</div>
+                    <div class="step-name">质量检查</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="step-num">06</div>
+                    <div class="step-name">截图交付</div>
+                </div>
             </div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">
-                <div class="step-num">02</div>
-                <div class="step-name">交互配置</div>
-            </div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">
-                <div class="step-num">03</div>
-                <div class="step-name">内容重构</div>
-            </div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">
-                <div class="step-num">04</div>
-                <div class="step-name">生成 HTML</div>
-            </div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">
-                <div class="step-num">05</div>
-                <div class="step-name">质量检查</div>
-            </div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">
-                <div class="step-num">06</div>
-                <div class="step-name">截图交付</div>
-            </div>
-        </div>
-        <div class="highlight-strip">
-            <div class="hs-item">
-                <div class="hs-num">3</div>
-                <div class="hs-label">信息密度<br>低/中/高</div>
-            </div>
-            <div class="hs-item">
-                <div class="hs-num">8pt</div>
-                <div class="hs-label">网格系统<br>像素级对齐</div>
-            </div>
-            <div class="hs-item">
-                <div class="hs-num">60-30-10</div>
-                <div class="hs-label">色彩法则<br>WCAG AA</div>
-            </div>
-            <div class="hs-item">
-                <div class="hs-num">0</div>
-                <div class="hs-label">设计技能<br>所需门槛</div>
+            <div class="highlight-strip">
+                <div class="hs-item">
+                    <div class="hs-num">8pt</div>
+                    <div class="hs-label">网格系统<br>像素级对齐</div>
+                </div>
+                <div class="hs-item">
+                    <div class="hs-num">60-30-10</div>
+                    <div class="hs-label">色彩法则<br>WCAG AA</div>
+                </div>
+                <div class="hs-item">
+                    <div class="hs-num">3s</div>
+                    <div class="hs-label">抓住核心<br>30s 理解全貌</div>
+                </div>
+                <div class="hs-item">
+                    <div class="hs-num">0</div>
+                    <div class="hs-label">设计技能<br>所需门槛</div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA: White block with yellow top border, 200px -->
+    <!-- CTA: White + yellow bar, 200px -->
     <footer class="cta-block">
         <div class="cta-left">
             <span class="cta-command">/onepager</span>
-            <span class="cta-url">github.com/ZeroxZhang/onepager</span>
+            <a href="https://github.com/ZeroxZhang/onepager" class="cta-btn-underline">github.com/ZeroxZhang/onepager</a>
         </div>
         <div class="cta-right">
-            <div class="cta-badge">Claude Code Skill</div>
+            <span class="cta-btn">GET STARTED</span>
             <span class="cta-sig">zerox · 2026</span>
         </div>
     </footer>
