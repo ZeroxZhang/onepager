@@ -8,7 +8,7 @@
 
 > A Claude Agent Skill for converting text content into high-quality OnePage infographics.
 
-![Onepager Demo](./onepager-A4-B9-T4-20260531-v2.png)
+![Onepager Demo](./onepager-A4-B9-T4-20260531.png)
 
 ## Overview
 
@@ -118,7 +118,7 @@ Apache License 2.0
 
 > 将文字内容转化为高品质 OnePage 介绍图的 Agent Skill。
 
-![Onepager Demo](./onepager-A4-B9-T4-20260531-v2.png)
+![Onepager Demo](./onepager-A4-B9-T4-20260531.png)
 
 ## 功能概述
 
