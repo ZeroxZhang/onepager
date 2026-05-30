@@ -4,8 +4,8 @@ description: >-
   Generate beautiful OnePage infographic posters and visual summary images from
   user-provided content (text, Markdown, PDF). Supports multiple sizes (portrait,
   landscape, square, 3:4 poster), nine design styles, three information density
-  levels, six content types (product intro, product manual, solution intro,
-  how-to guide, infographic, promotional poster), optional BigNumber data
+  levels, four content types (commercial persuasion, usage guide, infographic,
+  promotional poster) with focus sub-parameters, optional BigNumber data
   displays, auto-matched visual diagrams (flowcharts, tree diagrams,
   architecture diagrams, matrices, radar/pie charts), signature/署名,
   content-based file naming, and automated quality checks.
@@ -64,12 +64,10 @@ description: >-
    - **量化优先**：标记所有使用模糊形容词的地方（"显著提升""广泛应用"等），这些在改写时需替换为具体数字
 
 3. **类型识别**：根据内容特征判断属于以下哪种类型（参考 [类型差异化指南](references/type-differentiation.md)）：
-   - `T1` 产品介绍 — 目标是激发兴趣、促成转化
-   - `T2` 产品说明 — 目标是准确传递使用方法
-   - `T3` 方案介绍 — 目标是建立专业信任
-   - `T4` 操作指南 — 目标是降低学习成本
-   - `T5` 信息图 — 目标是数据可视化讲故事
-   - `T6` 宣传海报 — 目标是视觉冲击、情感驱动、促成行动
+   - `T1` 商业说服 — 目标是建立信任、促成转化（含 `focus=product` 产品导向 / `focus=solution` 方案导向）
+   - `T2` 使用指南 — 目标是准确传递、降低门槛（含 `focus=steps` 操作导向 / `focus=spec` 参数导向）
+   - `T3` 信息图 — 目标是数据可视化讲故事
+   - `T4` 宣传海报 — 目标是视觉冲击、情感驱动、促成行动
 
 4. 识别内容的**逻辑结构**（层级型/流程型/对比型/矩阵型）、**关键数据点**
 
@@ -104,12 +102,10 @@ description: >-
 - `C3` 高密度 — 干货满满，多栏/卡片布局，信息完整保留
 
 **D. 内容类型**（影响内容重构策略与必备要素）
-- `T1` 产品介绍 — 价值主张 + 痛点方案 + 核心功能 + 使用场景 + CTA
-- `T2` 产品说明 — 步骤流程 + 参数规格 + 注意事项 + 示意图
-- `T3` 方案介绍 — 行业洞察 + 方法论 + 案例数据 + 交付物 + 团队背书
-- `T4` 操作指南 — 编号步骤 + 图示 + 关键提示 + 常见问题
-- `T5` 信息图 — 主线叙事 + 数据对比 + 视觉隐喻 + 来源标注
-- `T6` 宣传海报 — 主视觉焦点 + 情绪钩子 + 极简信息层 + CTA + 时空锚点
+- `T1` 商业说服 — 价值主张 + 痛点方案 + 核心支撑 + 信任背书 + CTA（含 `focus=product` / `focus=solution` 子参数）
+- `T2` 使用指南 — 步骤/流程 + 参数/规格 + 注意事项/关键提示 + 示意图/FAQ（含 `focus=steps` / `focus=spec` 子参数）
+- `T3` 信息图 — 主线叙事 + 数据对比 + 视觉隐喻 + 来源标注
+- `T4` 宣传海报 — 主视觉焦点 + 情绪钩子 + 极简信息层 + CTA + 时空锚点
 
 **E. BigNumber 数据展示**
 - `E1` 包含（默认）— 提取 2-4 个核心数据指标，生成 BigNumber 模块
@@ -131,7 +127,7 @@ description: >-
 在按密度改写之前，先运用以下原则审视和重构内容：
 
 - **结论先行**：标题或首屏即给出核心论点，不把结论藏到最后
-- **SCQA 叙事**：确保内容有 背景→冲突→问题→方案 的故事线（T5 信息图除外，用数据叙事；T6 宣传海报除外，用情感驱动变体）
+- **SCQA 叙事**：确保内容有 背景→冲突→问题→方案 的故事线（T3 信息图除外，用数据叙事；T4 宣传海报除外，用情感驱动变体）
 - **量化替换**：将模糊形容词替换为具体数字。若用户素材未提供数字，可基于行业常识标注近似值并注明"[估算]"
 - **So What 过滤**：删除无法回答"所以呢？这对读者意味着什么？"的内容
 - **MECE 校验**：确保模块间不重叠、不遗漏
@@ -150,12 +146,10 @@ description: >-
 
 根据用户选择的内容类型，确保必备要素齐全。参考 [类型差异化指南](references/type-differentiation.md)：
 
-- **T1 产品介绍**：确保包含价值主张、痛点→方案、核心功能、使用场景、CTA
-- **T2 产品说明**：确保包含步骤流程、参数规格、注意事项、示意图
-- **T3 方案介绍**：确保包含行业洞察、方法论、案例数据、交付物、团队背书
-- **T4 操作指南**：确保包含编号步骤、图示、关键提示、FAQ
-- **T5 信息图**：确保包含主线叙事、数据对比、视觉隐喻、来源标注
-- **T6 宣传海报**：确保包含主视觉焦点、情绪钩子、极简信息层、CTA、时空锚点（时间/地点/联系方式）。T6 允许使用视觉冲击放大器（P1-P8），参考类型差异化指南
+- **T1 商业说服**：确保包含价值主张、痛点→方案、核心支撑、信任背书、CTA。`focus=product` 时重点确保功能点+场景；`focus=solution` 时重点确保方法论+案例数据+团队背书
+- **T2 使用指南**：确保包含步骤/流程、参数/规格、注意事项/关键提示、示意图/FAQ。`focus=steps` 时重点确保编号步骤+关键提示；`focus=spec` 时重点确保参数规格+技术说明
+- **T3 信息图**：确保包含主线叙事、数据对比、视觉隐喻、来源标注
+- **T4 宣传海报**：确保包含主视觉焦点、情绪钩子、极简信息层、CTA、时空锚点。T4 强制启用 P1 巨型字号+P2 满铺色块，使用专属布局模板。类型与风格的交叉规则（子模式切换、字体覆盖、配色覆盖）参考 [交叉规则](references/cross-reference.md)
 
 若用户素材缺少某项必备要素，在改写时基于内容合理补全，或标注"[需补充]"。
 
@@ -195,6 +189,7 @@ description: >-
 - 字体方案 → 参考 [typography.md](references/typography.md)
 - 版式尺寸 → 参考 [layout-specs.md](references/layout-specs.md)
 - 视觉规范 → 参考 [visual-standards.md](references/visual-standards.md)
+- 维度交叉规则（T×B 适配、T×A 布局、T×B 字体/配色覆盖）→ 参考 [cross-reference.md](references/cross-reference.md)
 - 基础模板 → 参考 [base-skeleton.html](assets/templates/base-skeleton.html)
 
 #### 4.2 HTML 生成规范
