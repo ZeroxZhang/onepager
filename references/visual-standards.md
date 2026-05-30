@@ -229,34 +229,58 @@
 
 ## 8. T4 海报附加视觉模式
 
-以下模式是 T4 宣传海报的推荐视觉手段（与放大器正交），源自 Google 活动站和编辑站的实测分析。它们描述的是**视觉上达成什么效果**——具体如何用 CSS 实现，由你根据整体设计意图决定。
+以下模式是 T4 宣传海报的推荐视觉手段（与放大器正交），源自 Google 活动站和编辑站的实测分析。
 
 ### 边框作为视觉节奏
 
-满铺色块（P2）不是海报冲击力的唯一来源。细实线边框（1-2px）贯穿 section 分隔，配合统一背景色+巨字+留白，可以达成同样强烈的海报效果，且更接近编辑风的克制感。
+满铺色块（P2）不是海报冲击力的唯一来源。**1.5-2px 实线边框**贯穿 section 分隔，配合白底+巨字+留白，可以达成同样强烈的海报效果——且更接近 Google 编辑风的克制感。
 
-适用场景：(a) 不使用 P2 满铺色块时作为替代节奏手段，(b) 极简东方、编辑风等"以留白为武器"的风格，(c) 需要突出文字内容本身而非色彩冲击时。
+```css
+.section {
+  border-bottom: 1.5px solid var(--ink);
+  padding: 80px 0;
+}
+```
 
-### 等宽字体营造专业纹理
+适用场景：(a) 不使用 P2 满铺色块时作为替代，(b) 极简东方、编辑风等"以留白为武器"的风格，(c) 需要突出文字内容本身而非色彩冲击时。
 
-JetBrains Mono 不限于 BigNumber 和数据展示。T4 海报中以下元素使用 mono 字体会显著提升"专业编辑感"：
+### 等宽字体用于元信息
 
-| 元素 | 视觉效果 | 字号范围 |
-|------|---------|---------|
-| 眉题 (eyebrow) | 小号、全大写、宽字距——传递"这是一个标签，不是正文" | 11-13px |
-| Section 标签 | 小号、可能带边框 pill 包裹——区分"元信息"和"内容" | 11-13px |
-| 署名/出处 | 安静地出现在区域底部，前面常有一条短横线 | 11-13px |
-| 列表编号/前缀 | "A." "01" "→"——功能性标注，不应抢夺正文注意力 | 12-14px |
-| 页脚/法律信息 | 最小号、最低视觉优先级 | 10-12px |
+JetBrains Mono 不限于 BigNumber 和数据展示。T4 海报中以下元素**推荐**使用 mono：
 
-核心原则：display 字体负责"被看见"，mono 字体负责"被信任"。两种字体的节奏对比本身就是一种设计质感。
+| 元素 | 示例 | CSS |
+|------|------|-----|
+| 眉题 (eyebrow) | "ONEPAGER — 信息图生成 SKILL" | `font-family: var(--font-mono); font-size: 12-14px; letter-spacing: 1-2px; text-transform: uppercase` |
+| 功能标签 | "01 · INPUT" | mono 编号 + display 文字 |
+| 署名/出处 | "onepager 设计理念" | `::before` 短横线(48px) + mono 文字 |
+| 列表编号 | "A." "B." "C." | mono 14px, opacity 0.6 |
+| 页脚信息 | "© 2026" | mono 12px, letter-spacing 1px |
 
 ### 装饰性圆点
 
-小型实心圆（8-14px 直径），使用强调色填充。这是一种极简的视觉标点——比 emoji 专业，比图标轻量。
+```css
+.dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);  /* 使用强调色 */
+  display: inline-block;
+}
+```
 
-用途：(a) Logo 旁的品牌标点 (b) 文字间的分隔符 (c) 段落开头的标记点。
+用途：(a) Logo 旁的品牌标点，(b) 走马灯文字间的分隔符（替代 emoji），(c) Section 开头的标记。
 
 ### 眉题横线装饰
 
-眉题（eyebrow）文字两侧各加一条短横线（40-80px 长，1-2px 粗），将文字"夹"在中间。这种手法在 Google I/O 和 Year in Search 页面中反复出现，用于 hero 顶部或 section 开头的标签文字。横线颜色通常跟随当前文字颜色。
+```css
+.eyebrow {
+  display: flex; align-items: center; gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 13px; letter-spacing: 1.5px;
+}
+.eyebrow::before, .eyebrow::after {
+  content: ""; flex: 1; max-width: 80px;
+  height: 1.5px; background: currentColor;
+}
+```
+
+两侧横线包裹眉题文字，是 Google I/O 和 Year in Search 的常见手法。
