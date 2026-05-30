@@ -86,7 +86,7 @@
 - 如果强调色是 `#6366f1` (indigo)、`#8b5cf6` (violet)、`#a855f4` (purple) 或其邻近色 → ** redesign **
 - 如果使用了 `linear-gradient(135deg, blue, purple)` 或类似 → ** remove immediately **
 - 允许使用的蓝色：纯蓝 `#2563eb`（仅 B5）、深海军蓝 `#1e3a5f`（仅 B7）、Google 蓝 `#1a73e8` 和 `#4285f4`（仅 B9）
-- 允许使用的紫色：`#c58af9`（仅 B9 Dark I/O 模式，因为这是
+- 允许使用的紫色：`#c58af9`（仅 B9 Dark I/O 模式，因为这是 Google Material Dark 主题配色的一部分，不作为主强调色使用）
 
 ---
 
