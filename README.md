@@ -8,7 +8,7 @@
 
 > A Claude Agent Skill for converting text content into high-quality OnePage infographics.
 
-![Onepager Demo](./onepager-A2-B9-20260529.png)
+![Onepager Demo](./onepager-A2-B9-T6-20260530.png)
 
 ## Overview
 
@@ -28,7 +28,7 @@ Onepager is a Claude Agent Skill that transforms your provided text, Markdown, o
 - **Nine Design Styles**: Dark Editorial, Swiss Precision, Organic Nature, Constructivist Brutalism, Neo-Pop Editorial, Minimalist East, Data Journalism, Cyber Street, Google Native
 - **Three Information Densities**: Low/Medium/High density, automatically rewriting content to match the layout
 - **Content Intelligence**: Applies consulting-grade content principles (MECE, Pyramid, SCQA, So What, Quantification) to restructure content for maximum impact
-- **Type Differentiation**: Automatically detects and adapts to 5 content types (Product Intro, Product Manual, Solution Pitch, Operation Guide, Infographic) with type-specific restructuring
+- **Type Differentiation**: Automatically detects and adapts to 6 content types (Product Intro, Product Manual, Solution Pitch, Operation Guide, Infographic, Promotional Poster) with type-specific restructuring and visual impact amplifiers
 - **Smart Diagram Matching**: Automatically selects flowcharts, structure diagrams, architecture diagrams, etc., based on content logic
 - **Optional BigNumber**: Toggle data highlight modules on/off (E1/E2), replace with quotes, diagrams, or whitespace when disabled
 - **Signature/署名**: Auto-detect from git user name or customize with brand name; per-style CSS styling for 9 design styles
@@ -88,7 +88,7 @@ onepager/
 │   ├── layout-specs.md       # Layout specifications for the 4 sizes
 │   ├── diagram-guide.md      # Diagram type matching and drawing guide
 │   ├── density-guide.md      # Information density and content rewriting rules
-│   ├── type-differentiation.md # Differentiated guidelines for 5 content types
+│   ├── type-differentiation.md # Differentiated guidelines for 6 content types
 │   └── visual-standards.md   # Cross-style universal visual standards
 ├── assets/
 │   └── templates/
@@ -117,7 +117,7 @@ Apache License 2.0
 
 > 将文字内容转化为高品质 OnePage 介绍图的 Agent Skill。
 
-![Onepager Demo](./onepager-A2-B9-20260529.png)
+![Onepager Demo](./onepager-A2-B9-T6-20260530.png)
 
 ## 功能概述
 
@@ -137,7 +137,7 @@ Onepager 是一个 Agent Skill，能够将用户提供的文字、Markdown 或 P
 - **九种设计风格**：暗夜编辑、瑞士精密、有机自然、建筑粗野、新波普编辑、极简东方、数据新闻、赛博街道、谷歌原生
 - **三级信息密度**：低/中/高密度，自动改写内容匹配版式
 - **内容智能**：运用咨询级内容原则（MECE、金字塔原理、SCQA、So What、量化优先）重构内容，最大化传达效果
-- **类型差异化**：自动识别并适配 5 种内容类型（产品介绍、产品说明、方案介绍、操作指南、信息图），按类型定制重构策略
+- **类型差异化**：自动识别并适配 6 种内容类型（产品介绍、产品说明、方案介绍、操作指南、信息图、宣传海报），按类型定制重构策略，T6 宣传海报支持视觉冲击放大器
 - **智能图表匹配**：根据内容逻辑自动选择流程图、结构图、架构图等
 - **BigNumber 可选**：数据展示模块可开关（E1/E2），关闭时可用引言块、图表或留白替代
 - **署名支持**：自动从 git 用户名读取，或自定义品牌名/公众号名；9 种风格各有专属署名样式
@@ -197,7 +197,7 @@ onepager/
 │   ├── layout-specs.md       # 四种尺寸的版式规范
 │   ├── diagram-guide.md      # 图表类型匹配与绘制指南
 │   ├── density-guide.md      # 信息密度与内容改写规则
-│   ├── type-differentiation.md # 五种内容类型的差异化指南
+│   ├── type-differentiation.md # 六种内容类型的差异化指南
 │   └── visual-standards.md   # 跨风格通用视觉规范
 ├── assets/
 │   └── templates/
