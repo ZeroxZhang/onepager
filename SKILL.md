@@ -189,7 +189,7 @@ description: >-
 - 字体方案 → 参考 [typography.md](references/typography.md)
 - 版式尺寸 → 参考 [layout-specs.md](references/layout-specs.md)
 - 视觉规范 → 参考 [visual-standards.md](references/visual-standards.md)
-- 维度交叉规则（T×B 适配、T×A 布局、T×B 字体/配色覆盖）→ 参考 [cross-reference.md](references/cross-reference.md)
+- 维度交叉规则（T×B 适配、T×A 布局、T×C 字号、B×T 配色覆盖）→ 参考 [cross-reference.md](references/cross-reference.md)
 - 基础模板 → 参考 [base-skeleton.html](assets/templates/base-skeleton.html)
 
 #### 4.2 HTML 生成规范
