@@ -141,11 +141,20 @@ T4 海报的核心目标是**视觉冲击力**。P1 巨型字号是所有海报�
 | **P1** | 巨型字号 | **强制** | Hero 标题或 BigNumber 使用极端字号 clamp(80px, 14vw, 220px)，line-height 0.9-1.0 |
 | P2 | 满铺色块 | 推荐 | 段落使用满铺纯色背景——B9 品牌四色 / B2 正红 / B4 安全橙等，是多数风格的推荐视觉手段 |
 | P3 | 描边/镂空文字 | 可选 | 部分标题 `-webkit-text-stroke: 2px ink; color: transparent;`，与实心字混排制造双层效果 |
-| P4 | 超大编号 | 可选 | 区块顶部 120-200px 半透明大数字（01/02/03），使用 Anton 或 Bebas Neue |
-| P5 | 非对称网格 | 可选 | 打破 12 列，用 3-2-7/5-7/8-4 分栏 + 负边距让元素跨区块 |
+| P4 | 超大编号 | 可选 | 区块内 160-300px 半透明大数字（01/02/03），可部分溢出视口边界（`top:30px; right:24px; opacity:0.08-0.18`），使用 Anton 或 Bebas Neue |
+| P5 | 非对称网格 | 可选 | 打破 12 列，用 5:7、3:2:7、8:4 等非对称分栏 + 负边距让元素跨区块 |
 | P6 | 贴纸标签 | 可选 | 旋转 3-8° 小标签（"NEW""限时""2026"），强调色底 + 深色文字 |
 | P7 | 走马灯字带 | 可选 | 横向滚动巨型字带，CSS animation，60s+ 一圈，尊重 prefers-reduced-motion |
 | P8 | 双色调图像 | 可选 | 照片加 CSS filter（grayscale + sepia 或 mix-blend-mode: multiply）与配色合成 |
+
+### T4 排版细节
+
+以下是与放大器正交的排版技巧，适用于所有 T4 海报：
+
+- **等宽字体用于元信息**：标签、眉题（eyebrow）、署名、列表编号、数据标注——这些"功能性文字"推荐使用 JetBrains Mono，与 display 字体形成节奏对比。参考网页中 nav link、feature tag、meta label、quote attr 均用 mono。
+- **边框作为视觉节奏**：1.5-2px 实线（`border-bottom: 1.5px solid var(--ink)`）贯穿 section 分隔，形成统一的"海报/笔记本"视觉语言。**这种手段可以替代或补充满铺色块**——当不使用 P2 时，边框节奏 + 留白 + 巨字同样可以达成海报级冲击力。
+- **装饰性圆点**：小号实心圆（8-14px，`border-radius: 50%`，使用强调色）可作为品牌标识旁的视觉标点、走马灯分隔符、或 section marker。
+- **眉题横线装饰**：eyebrow 文字两侧用 `::before` / `::after` 伪元素加短横线（`width: 40-80px; height: 1.5px`）包裹，是 Google 活动页的常见手法。
 
 ### 字号特殊规则（T4 专属）
 

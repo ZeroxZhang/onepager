@@ -224,3 +224,63 @@
 - 每个信息组块控制在 **7±2 个元素**以内
 - 超过 9 个元素时必须分组
 - 不足 3 个元素时考虑合并或视觉强化
+
+---
+
+## 8. T4 海报附加视觉模式
+
+以下模式是 T4 宣传海报的推荐视觉手段（与放大器正交），源自 Google 活动站和编辑站的实测分析。
+
+### 边框作为视觉节奏
+
+满铺色块（P2）不是海报冲击力的唯一来源。**1.5-2px 实线边框**贯穿 section 分隔，配合白底+巨字+留白，可以达成同样强烈的海报效果——且更接近 Google 编辑风的克制感。
+
+```css
+.section {
+  border-bottom: 1.5px solid var(--ink);
+  padding: 80px 0;
+}
+```
+
+适用场景：(a) 不使用 P2 满铺色块时作为替代，(b) 极简东方、编辑风等"以留白为武器"的风格，(c) 需要突出文字内容本身而非色彩冲击时。
+
+### 等宽字体用于元信息
+
+JetBrains Mono 不限于 BigNumber 和数据展示。T4 海报中以下元素**推荐**使用 mono：
+
+| 元素 | 示例 | CSS |
+|------|------|-----|
+| 眉题 (eyebrow) | "ONEPAGER — 信息图生成 SKILL" | `font-family: var(--font-mono); font-size: 12-14px; letter-spacing: 1-2px; text-transform: uppercase` |
+| 功能标签 | "01 · INPUT" | mono 编号 + display 文字 |
+| 署名/出处 | "onepager 设计理念" | `::before` 短横线(48px) + mono 文字 |
+| 列表编号 | "A." "B." "C." | mono 14px, opacity 0.6 |
+| 页脚信息 | "© 2026" | mono 12px, letter-spacing 1px |
+
+### 装饰性圆点
+
+```css
+.dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);  /* 使用强调色 */
+  display: inline-block;
+}
+```
+
+用途：(a) Logo 旁的品牌标点，(b) 走马灯文字间的分隔符（替代 emoji），(c) Section 开头的标记。
+
+### 眉题横线装饰
+
+```css
+.eyebrow {
+  display: flex; align-items: center; gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 13px; letter-spacing: 1.5px;
+}
+.eyebrow::before, .eyebrow::after {
+  content: ""; flex: 1; max-width: 80px;
+  height: 1.5px; background: currentColor;
+}
+```
+
+两侧横线包裹眉题文字，是 Google I/O 和 Year in Search 的常见手法。
