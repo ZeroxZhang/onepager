@@ -2,6 +2,36 @@
 
 All notable changes to the Onepager skill are documented in this file.
 
+## [1.5.0] - 2026-08-08
+
+### Added
+- Machine-readable configuration source of truth at `references/config-schema.json`
+- Content Blueprint, Onepager IR, and reproducible Manifest schemas
+- `scripts/project.py` for project initialization, versioning, verified build recording, and hash validation
+- Example Blueprint and IR assets plus an executable product development backlog
+- Browser-backed `render_check.py` for canvas dimensions, clipping, overflow, boundaries, page errors, and failed resources
+- Unit and Playwright integration tests with GitHub Actions CI
+- Runtime dependency manifest and idempotent Playwright/Chromium installation
+
+### Changed
+- The complete `A/B/C/T/E/F` menu is explicitly retained as the core user interaction protocol; recommendations explain choices but never silently replace user confirmation
+- Phase 1 now produces a user-visible content blueprint before the configuration interaction
+- Confirmed configuration and stable content-module IDs are persisted in Onepager IR
+- Content reconstruction no longer invents metrics, cases, credentials, or missing factual details
+- Missing verified BigNumber data now falls back to E2 unless the user explicitly requests a labeled scenario assumption
+- B9/T4 mode and A2/A3/A4 fixed-height rules are consistent across the primary instructions and references
+- `quality_check.py` now validates each CSS rule, resolves CSS variables, parses inline styles, and distinguishes hard errors from advisory warnings
+- `capture.py` now fails closed on navigation/font/page errors, writes atomically, validates arguments, and verifies final PNG dimensions
+- Network fonts are optional enhancements with required system fallbacks rather than a self-contained-file guarantee
+
+### Fixed
+- Non-B9 palettes with seven or fewer colors can now pass
+- Semantic footers, exact BigNumber classes, CSS absolute positioning, per-grid rows, inline colors, spaced RGB syntax, and CSS-variable contrast are handled correctly
+- Copyright and other non-emoji symbols no longer trigger the Emoji rule
+- Playwright installation no longer skips a missing Chromium browser
+- Removed the obsolete T6 showcase and tracked `.DS_Store`
+- Replaced the missing poster-reference filename with the maintained B9/T4 showcase
+
 ## [1.4.0] - 2026-05-29
 
 ### Added

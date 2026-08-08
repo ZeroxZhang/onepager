@@ -1,114 +1,172 @@
 #!/usr/bin/env python3
-"""
-Onepager — HTML to PNG capture script.
-
-Uses Playwright to render an HTML file and capture it as a high-quality PNG image.
-Supports fixed dimensions and auto-height (full-page) modes.
-
-Usage:
-    python3 capture.py <input.html> --output <output.png> --width <px> [--height <px|auto>] [--scale <factor>] [--timeout <ms>]
-
-Examples:
-    # Portrait (auto height)
-    python3 capture.py onepage.html --output onepage.png --width 800 --height auto
-
-    # Landscape (fixed)
-    python3 capture.py onepage.html --output onepage.png --width 1920 --height 1080
-
-    # Square (fixed)
-    python3 capture.py onepage.html --output onepage.png --width 1080 --height 1080
-
-    # High-DPI (2x scale)
-    python3 capture.py onepage.html --output onepage.png --width 800 --height auto --scale 2
-"""
+"""Fail-closed HTML to PNG capture for Onepager."""
 
 import argparse
 import asyncio
 import os
+import struct
 import sys
+import tempfile
+from pathlib import Path
+from typing import Optional, Tuple
 
 
-async def capture(input_path: str, output_path: str, width: int, height: str, scale: float, timeout: int):
-    """Render HTML and capture screenshot."""
+def parse_height(value: str) -> Optional[int]:
+    if value.lower() == "auto":
+        return None
+    try:
+        height = int(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("height must be a positive integer or 'auto'") from error
+    if height <= 0:
+        raise argparse.ArgumentTypeError("height must be greater than zero")
+    return height
+
+
+def positive_int(value: str) -> int:
+    number = int(value)
+    if number <= 0:
+        raise argparse.ArgumentTypeError("value must be greater than zero")
+    return number
+
+
+def positive_float(value: str) -> float:
+    number = float(value)
+    if number <= 0:
+        raise argparse.ArgumentTypeError("value must be greater than zero")
+    return number
+
+
+def read_png_dimensions(path: Path) -> Tuple[int, int]:
+    with path.open("rb") as file:
+        header = file.read(24)
+    if len(header) != 24 or header[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError(f"Output is not a valid PNG: {path}")
+    return struct.unpack(">II", header[16:24])
+
+
+async def capture(
+    input_path: Path,
+    output_path: Path,
+    width: int,
+    height: Optional[int],
+    scale: float,
+    timeout: int,
+) -> Tuple[int, int]:
+    source = Path(input_path).resolve()
+    destination = Path(output_path).resolve()
+    if not source.is_file():
+        raise FileNotFoundError(f"Input file not found: {source}")
+
     try:
         from playwright.async_api import async_playwright
-    except ImportError:
-        print("ERROR: Playwright is not installed.")
-        print("Run: pip install playwright && python -m playwright install chromium")
-        sys.exit(1)
+    except ImportError as error:
+        raise RuntimeError(
+            "Playwright is not installed. Run: bash scripts/install_deps.sh"
+        ) from error
 
-    abs_input = os.path.abspath(input_path)
-    if not os.path.exists(abs_input):
-        print(f"ERROR: Input file not found: {abs_input}")
-        sys.exit(1)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path: Optional[Path] = None
+    page_height = height or 800
 
-    actual_height = "unknown"
-    file_url = f"file://{abs_input}"
+    try:
+        with tempfile.NamedTemporaryFile(
+            prefix=f".{destination.stem}-",
+            suffix=".png",
+            dir=destination.parent,
+            delete=False,
+        ) as temporary:
+            temporary_path = Path(temporary.name)
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page(
-            viewport={"width": width, "height": 800},
-            device_scale_factor=scale,
+        async with async_playwright() as playwright:
+            browser = await playwright.chromium.launch(headless=True)
+            page = await browser.new_page(
+                viewport={"width": width, "height": page_height},
+                device_scale_factor=scale,
+            )
+            failed_requests = []
+            page_errors = []
+            page.on("requestfailed", lambda request: failed_requests.append(request.url))
+            page.on("pageerror", lambda error: page_errors.append(str(error)))
+
+            await page.goto(source.as_uri(), wait_until="domcontentloaded", timeout=timeout)
+            await page.wait_for_function(
+                "document.fonts ? document.fonts.status === 'loaded' : true",
+                timeout=timeout,
+            )
+            await page.wait_for_timeout(250)
+
+            if page_errors:
+                raise RuntimeError(f"Page JavaScript error: {page_errors[0]}")
+
+            if height is None:
+                actual_height = int(await page.evaluate("document.documentElement.scrollHeight"))
+                if actual_height <= 0:
+                    raise RuntimeError("Rendered page has no measurable height")
+                await page.screenshot(path=str(temporary_path), full_page=True, type="png")
+            else:
+                actual_height = height
+                await page.screenshot(
+                    path=str(temporary_path),
+                    full_page=False,
+                    clip={"x": 0, "y": 0, "width": width, "height": height},
+                    type="png",
+                )
+            await browser.close()
+
+            if failed_requests:
+                print(
+                    f"WARN: {len(failed_requests)} resource request(s) failed; "
+                    "system font fallback may have been used.",
+                    file=sys.stderr,
+                )
+
+        png_width, png_height = read_png_dimensions(temporary_path)
+        expected_width = round(width * scale)
+        expected_height = round(actual_height * scale)
+        if (png_width, png_height) != (expected_width, expected_height):
+            raise RuntimeError(
+                "PNG dimensions do not match the requested viewport and scale: "
+                f"got {png_width}x{png_height}, expected {expected_width}x{expected_height}"
+            )
+
+        os.replace(temporary_path, destination)
+        temporary_path = None
+        return png_width, png_height
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Capture HTML as a validated PNG image")
+    parser.add_argument("input", type=Path, help="Path to input HTML")
+    parser.add_argument("--output", "-o", type=Path, required=True, help="Path to output PNG")
+    parser.add_argument("--width", "-w", type=positive_int, required=True, help="CSS viewport width")
+    parser.add_argument(
+        "--height",
+        type=parse_height,
+        default=None,
+        help="CSS viewport height, or 'auto' (default)",
+    )
+    parser.add_argument("--scale", "-s", type=positive_float, default=2.0)
+    parser.add_argument("--timeout", "-t", type=positive_int, default=30000)
+    return parser
+
+
+def main() -> None:
+    args = build_parser().parse_args()
+    try:
+        png_width, png_height = asyncio.run(
+            capture(args.input, args.output, args.width, args.height, args.scale, args.timeout)
         )
+    except (OSError, RuntimeError, ValueError) as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        raise SystemExit(1)
 
-        # Navigate with explicit timeout
-        try:
-            await page.goto(file_url, wait_until="networkidle", timeout=timeout)
-        except Exception as e:
-            print(f"WARN: Page navigation timeout or error: {e}")
-            print("      Attempting to proceed with partial render...")
-
-        # Wait for fonts to finish loading (use document.fonts.ready when available)
-        try:
-            await page.evaluate("document.fonts?.ready")
-        except Exception:
-            pass  # document.fonts may not be available in all contexts
-        # Short buffer for final paint
-        await page.wait_for_timeout(500)
-
-        if height == "auto":
-            # Full-page screenshot (auto height)
-            await page.screenshot(
-                path=output_path,
-                full_page=True,
-                type="png",
-            )
-            # Get actual page height for reporting
-            actual_height = await page.evaluate("document.documentElement.scrollHeight")
-        else:
-            # Fixed viewport screenshot
-            h = int(height)
-            await page.set_viewport_size({"width": width, "height": h})
-            # Brief re-render after viewport resize
-            await page.wait_for_timeout(300)
-            await page.screenshot(
-                path=output_path,
-                full_page=False,
-                clip={"x": 0, "y": 0, "width": width, "height": h},
-                type="png",
-            )
-
-        await browser.close()
-
-    print(f"OK: Screenshot saved to {output_path}")
-    if height == "auto":
-        print(f"    Dimensions: {width}px x {actual_height}px (scale: {scale}x, auto height)")
-    else:
-        print(f"    Dimensions: {width}px x {height}px (scale: {scale}x)")
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Capture HTML as PNG image.")
-    parser.add_argument("input", help="Path to input HTML file")
-    parser.add_argument("--output", "-o", required=True, help="Path to output PNG file")
-    parser.add_argument("--width", "-w", type=int, required=True, help="Viewport width in pixels")
-    parser.add_argument("--height", default="auto", help="Viewport height in pixels, or 'auto' for full page")
-    parser.add_argument("--scale", "-s", type=float, default=2.0, help="Device scale factor (default: 2.0 for Retina)")
-    parser.add_argument("--timeout", "-t", type=int, default=30000, help="Navigation timeout in ms (default: 30000)")
-    args = parser.parse_args()
-
-    asyncio.run(capture(args.input, args.output, args.width, args.height, args.scale, args.timeout))
+    print(f"OK: Screenshot saved to {args.output}")
+    print(f"    PNG dimensions: {png_width}px x {png_height}px")
+    print(f"    CSS viewport: {args.width}px x {args.height or 'auto'} (scale: {args.scale}x)")
 
 
 if __name__ == "__main__":

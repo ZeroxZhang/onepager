@@ -74,16 +74,6 @@
             overflow: hidden;
         }
 
-        /* Google dot-grid pattern */
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-        }
-
         /* P6 Sticker — rotated "v3.0" */
         .sticker-v {
             position: absolute;
@@ -96,6 +86,7 @@
             transform: rotate(5deg);
             z-index: 2;
             letter-spacing: 0.02em;
+            pointer-events: none;
         }
 
         /* P6 Sticker — CLAUDE CODE SKILL pill */
@@ -112,6 +103,7 @@
             border-radius: 100px;
             transform: rotate(-3deg);
             z-index: 2;
+            pointer-events: none;
         }
 
         /* Eyebrow with horizontal rule decoration (new pattern) */
@@ -453,7 +445,7 @@
             vertical-align: middle;
         }
 
-        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); pointer-events: none; }
     </style>
 </head>
 <body>
@@ -490,7 +482,7 @@
         <p class="hero-sub">AI 驱动的信息可视化技能<span class="dot"></span>文字到海报，一步到位</p>
 
         <!-- BigNumbers with mono labels (NEW) -->
-        <div class="hero-bignums">
+        <div class="bignum-module hero-bignums">
             <div class="hn-item">
                 <div class="hn-num">9</div>
                 <div class="hn-label">设计风格</div>

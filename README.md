@@ -34,11 +34,14 @@ Onepager is a Claude Agent Skill that transforms your provided text, Markdown, o
 - **Signature/署名**: Auto-detect from git user name or customize with brand name; per-style CSS styling for 9 design styles
 - **Content-Based Naming**: Output files named as `{topic}-{size}-{style}-{date}` instead of generic names, avoiding overwrites
 - **One-Click Config**: Accept recommended settings in one step during the interactive configuration phase
+- **User-Controlled A/B/C/T/E/F Protocol**: Keep the full size, style, density, type, BigNumber, and signature menu visible; recommendations explain why, while users retain final control
+- **Content Blueprint**: Review the audience, core claim, modules, evidence, and missing facts before rendering
+- **Reproducible Projects**: Persist Blueprint, Onepager IR, confirmed configuration, build artifacts, quality reports, and SHA-256 hashes
 - **Visual Standards**: 8pt Grid system, 60-30-10 color rule, WCAG AA contrast, consistent icon styles
 - **Enhanced Layout Engine**: Automatically handles complex layouts, Flex/Grid adaptations, and alignment optimization
 - **Chinese Typography Optimization**: Matches the best Chinese font scheme based on the design style
-- **Automated Quality Checks**: Built-in quality check script validates design compliance (color, typography, layout) before screenshot, supports `--no-bignum` mode
-- **HTML → PNG Conversion**: Built-in Playwright screenshot script to automatically convert to high-resolution images
+- **Two-Layer Quality Checks**: Static contract checks plus Playwright-rendered geometry checks for canvas size, clipping, overflow, and boundaries
+- **Reliable HTML → PNG Conversion**: Fail-closed Playwright capture with atomic writes and output-dimension verification
 - **Iteration & Rework**: Built-in guidance for fine-tuning, config changes, and content revisions post-delivery
 
 ## Installation
@@ -73,6 +76,22 @@ Simply describe your request to the AI to trigger it automatically, for example:
 
 Or use the slash command to call it explicitly: `/onepager`
 
+The interaction always keeps the complete `A/B/C/T/E/F` menu. You may accept
+the recommended combination or override any dimensions, for example:
+
+```text
+A4 B2 C2 T1 E2 F无
+```
+
+Reproducible project assets can be managed independently of the AI runtime:
+
+```bash
+python3 scripts/project.py init .onepager/projects/demo \
+  --slug demo --title "Demo"
+python3 scripts/project.py next-version .onepager/projects/demo
+python3 scripts/project.py validate .onepager/projects/demo
+```
+
 ## File Structure
 
 ```text
@@ -81,8 +100,14 @@ onepager/
 ├── scripts/
 │   ├── capture.py            # Playwright HTML→PNG screenshot script
 │   ├── install_deps.sh       # Dependency installation helper script
-│   └── quality_check.py      # Automated design quality validation script
+│   ├── project.py            # Reproducible project and build manifest CLI
+│   ├── quality_check.py      # Static contract and design validation
+│   └── render_check.py       # Browser-rendered geometry validation
 ├── references/
+│   ├── config-schema.json    # Machine-readable configuration source of truth
+│   ├── blueprint-schema.json # Content Blueprint contract
+│   ├── onepager-ir-schema.json # Semantic intermediate representation
+│   ├── manifest-schema.json  # Reproducible build manifest contract
 │   ├── design-styles.md      # Full visual specifications for the 9 design styles
 │   ├── typography.md         # Chinese font schemes and typography parameters
 │   ├── layout-specs.md       # Layout specifications for the 4 sizes
@@ -94,17 +119,19 @@ onepager/
 ├── assets/
 │   └── templates/
 │       └── base-skeleton.html# HTML base skeleton template
+├── tests/                    # Unit and Playwright integration tests
+├── requirements.txt         # Python runtime dependencies
 ├── LICENSE.txt
 └── README.md
 ```
 
 ## Dependencies
 
-The screenshot feature requires the following dependencies (Optional, Agent will install them automatically when needed):
+The screenshot and rendered-quality features require Python 3.8+, Playwright, and Chromium. The idempotent installer verifies both the Python package and browser executable:
 
-- Python 3.8+
-- Playwright (`pip install playwright`)
-- Chromium (`python -m playwright install chromium`)
+```bash
+bash scripts/install_deps.sh
+```
 
 If the runtime environment does not support screenshot tools, the Skill will directly deliver the HTML file.
 
@@ -144,11 +171,14 @@ Onepager 是一个 Agent Skill，能够将用户提供的文字、Markdown 或 P
 - **署名支持**：自动从 git 用户名读取，或自定义品牌名/公众号名；9 种风格各有专属署名样式
 - **内容命名**：输出文件按 `{主题}-{尺寸}-{风格}-{日期}` 命名，避免覆盖已有文件
 - **一键采纳推荐**：配置阶段可直接回车采纳推荐配置，快速开始
+- **用户可控 A/B/C/T/E/F 协议**：完整保留尺寸、风格、密度、类型、BigNumber 与署名菜单；系统解释推荐理由，最终选择权属于用户
+- **内容蓝图确认**：渲染前确认受众、核心论点、模块、证据和缺失事实
+- **可复现项目**：保存蓝图、Onepager IR、用户确认配置、构建产物、质检报告与 SHA-256
 - **视觉规范**：8pt Grid 对齐系统、60-30-10 色彩法则、WCAG AA 对比度、统一图标风格
 - **排版引擎强化**：自动处理复杂布局、Flex/Grid 适配、对齐优化
 - **中文字体优化**：根据设计风格匹配最佳中文字体方案
-- **自动化质量检查**：内置质量检查脚本，在截图前自动校验设计合规性（配色、排版、布局），支持 `--no-bignum` 模式
-- **HTML → PNG 转换**：自带 Playwright 截图脚本，自动转为高清图片
+- **双层质量检查**：静态契约检查 + Playwright 真实渲染检查，覆盖画布尺寸、裁切、溢出与边界
+- **可靠 HTML → PNG 转换**：截图失败即终止，采用原子写入并校验最终 PNG 尺寸
 - **调整迭代**：交付后支持微调、配置变更、内容修改等迭代流程
 
 ## 安装方式
@@ -183,6 +213,21 @@ cp -r onepager/ ~/.trae/skills/onepager/
 
 或使用特定的唤醒词/斜杠命令显式调用：`/onepager`
 
+交互过程始终完整保留 `A/B/C/T/E/F` 菜单。用户可以采纳推荐组合，也可以覆盖任意维度，例如：
+
+```text
+A4 B2 C2 T1 E2 F无
+```
+
+可复现项目资产可脱离 AI 运行时独立管理：
+
+```bash
+python3 scripts/project.py init .onepager/projects/demo \
+  --slug demo --title "演示项目"
+python3 scripts/project.py next-version .onepager/projects/demo
+python3 scripts/project.py validate .onepager/projects/demo
+```
+
 ## 文件结构说明
 
 ```text
@@ -191,8 +236,14 @@ onepager/
 ├── scripts/
 │   ├── capture.py            # Playwright HTML→PNG 截图脚本
 │   ├── install_deps.sh       # 依赖安装辅助脚本
-│   └── quality_check.py      # 自动化设计质量校验脚本
+│   ├── project.py            # 可复现项目与构建 Manifest CLI
+│   ├── quality_check.py      # 静态契约与设计规范校验
+│   └── render_check.py       # 浏览器真实渲染与几何校验
 ├── references/
+│   ├── config-schema.json    # 机器可读配置单一事实源
+│   ├── blueprint-schema.json # 内容蓝图契约
+│   ├── onepager-ir-schema.json # 语义中间表示
+│   ├── manifest-schema.json  # 可复现构建记录契约
 │   ├── design-styles.md      # 九种设计风格的完整视觉规范
 │   ├── typography.md         # 中文字体方案与排版参数
 │   ├── layout-specs.md       # 四种尺寸的版式规范
@@ -204,17 +255,19 @@ onepager/
 ├── assets/
 │   └── templates/
 │       └── base-skeleton.html  # HTML 基础骨架模板
+├── tests/                    # 单元测试与 Playwright 集成测试
+├── requirements.txt         # Python 运行时依赖
 ├── LICENSE.txt
 └── README.md
 ```
 
 ## 依赖
 
-截图功能需要以下依赖（可选，Agent 会在需要时自动安装）：
+截图和渲染质检需要 Python 3.8+、Playwright 与 Chromium。幂等安装脚本会分别验证 Python 包和浏览器可执行文件：
 
-- Python 3.8+
-- Playwright (`pip install playwright`)
-- Chromium (`python -m playwright install chromium`)
+```bash
+bash scripts/install_deps.sh
+```
 
 如果运行环境不支持截图工具，Skill 会直接交付 HTML 文件。
 

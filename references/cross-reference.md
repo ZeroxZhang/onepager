@@ -2,6 +2,7 @@
 
 本文件定义风格(B)、类型(T)、密度(C)、尺寸(A) 四个正交维度的交叉规则。
 每个交叉规则只在这里定义一次，其他参考文件不再跨维度重复。
+所有枚举、默认值与模式覆盖必须同时符合 [config-schema.json](config-schema.json)；若文字说明与 Schema 冲突，以 Schema 为准。
 
 ---
 
@@ -91,7 +92,7 @@ body, p, .body {
 }
 ```
 
-Google Fonts 加载：
+可选网络字体加载（离线时使用系统 fallback，不得阻断渲染）：
 ```html
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500&family=Noto+Sans+SC:wght@400;500;900&display=swap" rel="stylesheet">
 <!-- Smiley Sans (得意黑) -->

@@ -1,36 +1,52 @@
 #!/usr/bin/env bash
-# Onepager — Dependency installation helper
-# Installs Playwright (Python) and Chromium browser for HTML-to-PNG capture.
+# Install and verify the Python Playwright package and Chromium browser.
 
-set -e
+set -euo pipefail
 
-echo "=== Onepager: Installing dependencies ==="
+echo "=== Onepager: checking screenshot dependencies ==="
 
-# Check Python
-if ! command -v python3 &> /dev/null; then
-    echo "ERROR: Python 3 is required but not found."
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "ERROR: Python 3 is required but not found." >&2
     exit 1
 fi
 
-# Check Python version >= 3.8
-python3 -c "
+python3 - <<'PY'
 import sys
-if sys.version_info < (3, 8):
-    print('ERROR: Python 3.8+ is required. Current version:', sys.version)
-    sys.exit(1)
-" || exit 1
 
-if python3 -c "import playwright" &> /dev/null; then
-    echo "Playwright is already installed, skipping installation."
-    exit 0
+if sys.version_info < (3, 8):
+    raise SystemExit(f"ERROR: Python 3.8+ is required. Current version: {sys.version}")
+PY
+
+if ! python3 -c "import playwright" >/dev/null 2>&1; then
+    echo "[1/2] Installing the Playwright Python package..."
+    python3 -m pip install -r "$(dirname "$0")/../requirements.txt"
+else
+    echo "[1/2] Playwright Python package is already installed."
 fi
 
-echo "[1/2] Installing Playwright Python package..."
-pip3 install "playwright>=1.40,<2.0"
+if python3 - <<'PY'
+import os
+from playwright.sync_api import sync_playwright
 
-echo "[2/2] Installing Chromium browser for Playwright..."
-python3 -m playwright install chromium
+with sync_playwright() as playwright:
+    raise SystemExit(0 if os.path.isfile(playwright.chromium.executable_path) else 1)
+PY
+then
+    echo "[2/2] Chromium is already installed."
+else
+    echo "[2/2] Installing Chromium for the active Python environment..."
+    python3 -m playwright install chromium
+fi
 
-echo ""
-echo "=== Installation complete ==="
-echo "You can now run: python3 scripts/capture.py <input.html> --output <output.png> --width 800"
+python3 - <<'PY'
+import os
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as playwright:
+    executable = playwright.chromium.executable_path
+    if not os.path.isfile(executable):
+        raise SystemExit(f"ERROR: Chromium executable was not found after installation: {executable}")
+    print(f"Verified Chromium: {executable}")
+PY
+
+echo "=== Dependency check complete ==="
